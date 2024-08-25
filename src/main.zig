@@ -25,10 +25,23 @@ pub const HasCollisionBox: type = struct {
 };
 
 pub const World: type = struct {
-    has_texture_components: [100]?HasTexture,
-    has_position_components: [100]?HasPosition,
-    has_velocity_components: [100]?HasVelocity,
-    has_collision_box_components: [100]?HasCollisionBox,
+    has_texture_components: *[100]?HasTexture,
+    has_position_components: *[100]?HasPosition,
+    has_velocity_components: *[100]?HasVelocity,
+    has_collision_box_components: *[100]?HasCollisionBox,
+    pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
+        const texture_components = try allocator.alloc(?HasTexture, 100);
+        const position_components = try allocator.alloc(?HasPosition, 100);
+        const velocity_components = try allocator.alloc(?HasVelocity, 100);
+        const collision_box_components = try allocator.alloc(?HasCollisionBox, 100);
+
+        return World{
+            .has_texture_components = texture_components,
+            .has_position_components = position_components,
+            .has_velocity_components = velocity_components,
+            .has_collision_box_components = collision_box_components,
+        };
+    }
 };
 
 pub fn MakeSystem(
@@ -53,18 +66,23 @@ pub fn MakeSystem(
                 }
 
                 switch (@typeInfo(field_info.type)) {
-                    .Array => |a| {
-                        const step_type = a.child;
-                        const as_struct_field = std.builtin.Type.StructField{
-                            .default_value = null,
-                            .name = field_info.name,
-                            .type = step_type,
-                            .is_comptime = false,
-                            .alignment = @alignOf(step_type),
-                        };
-                        input_type_fields[idx] = as_struct_field;
+                    .Pointer => |p| {
+                        switch (@typeInfo(p.child)) {
+                            .Array => |a| {
+                                const step_type = a.child;
+                                const as_struct_field = std.builtin.Type.StructField{
+                                    .default_value = null,
+                                    .name = field_info.name,
+                                    .type = step_type,
+                                    .is_comptime = false,
+                                    .alignment = @alignOf(step_type),
+                                };
+                                input_type_fields[idx] = as_struct_field;
+                            },
+                            else => @compileError("All fields on world must be arrays"),
+                        }
                     },
-                    else => @compileError("All fields on world must be arrays"),
+                    else => @compileError("All fields on world must be pointers"),
                 }
             },
             else => @compileError("World must be a struct"),
