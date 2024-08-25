@@ -126,10 +126,10 @@ pub fn main() anyerror!void {
     //--------------------------------------------------------------------------------------
 
     const c = rl.Camera2D{
-        .offset = rl.Vector2{ .x = screenWidth / 2, .y = screenHeight / 2 },
-        .target = rl.Vector2{ .x = screenWidth / 2, .y = screenHeight / 2 },
+        .offset = rl.Vector2{ .x = 30, .y = 30 },
+        .target = rl.Vector2{ .x = 0, .y = 0 },
         .rotation = 0,
-        .zoom = 2,
+        .zoom = 1,
     };
 
     // Main game loop
@@ -149,7 +149,7 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(rl.Color.white);
 
-        rl.drawText("Congrats! You created your first window!", 190, 200, 20, rl.Color.light_gray);
+        rl.drawText("Congrats! You created your first window!", 0, 0, 20, rl.Color.light_gray);
         //----------------------------------------------------------------------------------
 
     }
