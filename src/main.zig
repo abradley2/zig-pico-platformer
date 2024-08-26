@@ -21,7 +21,6 @@ pub fn main() anyerror!void {
         "levels",
         "level_01.json",
     };
-    try tiled.loadTileMap(worldAllocator.allocator(), &level_one_path);
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
@@ -35,6 +34,9 @@ pub fn main() anyerror!void {
         @intFromFloat(@round(screenHeight)),
         "raylib-zig [core] example - basic window",
     );
+
+    try tiled.loadTileMap(worldAllocator.allocator(), &level_one_path);
+
     defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
