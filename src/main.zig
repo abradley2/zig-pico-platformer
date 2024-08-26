@@ -35,7 +35,8 @@ pub fn main() anyerror!void {
         "raylib-zig [core] example - basic window",
     );
 
-    try tiled.loadTileMap(worldAllocator.allocator(), &level_one_path);
+    const tileMap = try tiled.loadTileMap(worldAllocator.allocator(), &level_one_path);
+    std.debug.print("tileMap: {?}\n", .{tileMap});
 
     defer rl.closeWindow(); // Close window and OpenGL context
 

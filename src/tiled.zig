@@ -119,14 +119,10 @@ fn readFile(alloc: std.mem.Allocator, file_path: []const u8) ![]const u8 {
     return buf;
 }
 
-fn loadTileSetImage() void {}
-
-fn loadTileSet() void {}
-
 pub fn loadTileMap(
     allocator: std.mem.Allocator,
     file_path_segments: [][]const u8,
-) !void {
+) !TileMap {
     var texture_map = TextureMap.init(allocator);
 
     var leaky_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -200,7 +196,7 @@ pub fn loadTileMap(
 
     std.debug.print("file_data: {?}\n", .{tile_map_json});
 
-    var layers = try allocator.alloc(Layer, tile_map_json.layers.len);
+    var layers: []Layer = try allocator.alloc(Layer, tile_map_json.layers.len);
 
     for (0.., tile_map_json.layers) |idx, raw_layer| {
         var layer_tiles = try allocator.alloc(LayerTile, raw_layer.data.len);
@@ -221,6 +217,16 @@ pub fn loadTileMap(
             .tiles = layer_tiles,
         };
     }
+
+    const tile_map = TileMap{
+        .tile_width = tile_map_json.tilewidth,
+        .tile_height = tile_map_json.tileheight,
+        .rows = tile_map_json.layers[0].height,
+        .columns = tile_map_json.layers[0].width,
+        .layers = layers,
+    };
+
+    return tile_map;
 }
 
 fn tileSetForGid(gid: u32, tile_sets: []TileSetData) !TileSetData {
