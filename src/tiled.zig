@@ -10,11 +10,15 @@ const CustomProperty = struct {
         for (properties) |property| {
             if (std.mem.eql(u8, "layer_type", property.name)) {
                 switch (property.value) {
-                    std.json.Value.String => |v| return LayerType.fromString(v),
-                    _ => return error.UnexpectedCustomPropertyType,
+                    std.json.Value.string => |v| {
+                        const layer_type = try LayerType.fromString(v);
+                        return layer_type;
+                    },
+                    else => return error.UnexpectedCustomPropertyType,
                 }
             }
         }
+        return null;
     }
 
     pub fn getIsCollidable(properties: []CustomProperty) !bool {
@@ -53,10 +57,10 @@ pub const LayerType = enum {
     Display,
     Logic,
     pub fn fromString(s: []const u8) !LayerType {
-        if (std.mem.eql("display", s)) {
+        if (std.mem.eql(u8, "display", s)) {
             return LayerType.Display;
         }
-        if (std.mem.eql("logic", s)) {
+        if (std.mem.eql(u8, "logic", s)) {
             return LayerType.Logic;
         }
         return error.UnknownLayerType;
@@ -64,6 +68,7 @@ pub const LayerType = enum {
 };
 
 const TileSetData = struct {
+    tilesetid: TileSetID = TileSetID.TileMap,
     firstgid: u32 = 123456789,
     image: []const u8,
     columns: u32,
@@ -186,6 +191,7 @@ pub fn loadTileMap(
         const texture = rl.loadTexture(image_path);
         try texture_map.put(tile_set_id, &texture);
 
+        parsed_tile_set.tilesetid = tile_set_id;
         parsed_tile_set.firstgid = tile_set_ref.firstgid;
         tile_sets[idx] = parsed_tile_set;
     }
@@ -204,7 +210,7 @@ pub fn loadTileMap(
             if (global_id == 0) continue;
             const tile_set = try tileSetForGid(global_id, tile_sets);
             const layer_tile = LayerTile{
-                .tile_set_id = TileSetID.TileMap,
+                .tile_set_id = tile_set.tilesetid,
                 .global_id = global_id,
                 .local_id = global_id - tile_set.firstgid,
                 .tile_set_row = @as(u32, @intCast(tile_idx)) / raw_layer.width,
@@ -212,8 +218,9 @@ pub fn loadTileMap(
             };
             layer_tiles[tile_idx] = layer_tile;
         }
+        const layer_type = try CustomProperty.getLayerType(raw_layer.properties);
         layers[idx] = Layer{
-            .layer_type = LayerType.Display,
+            .layer_type = layer_type orelse LayerType.Display,
             .tiles = layer_tiles,
         };
     }
