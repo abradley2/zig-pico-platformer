@@ -1,2 +1,4 @@
 .DS_Store
 .zig-cache/
+*.tiled-project
+*.tiled-session
