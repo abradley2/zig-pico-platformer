@@ -5,8 +5,8 @@ const rl = @import("raylib");
 pub fn makePlayerEntity(world: *World) error{OutOfMemory}!usize {
     const player = try world.createEntity();
     world.position_components[player] = component.Position{
-        .x = 0,
-        .y = 0,
+        .x = 128,
+        .y = 128,
     };
     world.velocity_components[player] = component.Velocity{
         .dx = 0,

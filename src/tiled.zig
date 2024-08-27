@@ -104,7 +104,7 @@ pub const LayerTile = struct {
 
 pub const Layer = struct {
     layer_type: LayerType,
-    tiles: []LayerTile,
+    tiles: []?LayerTile,
 };
 
 pub const TileMap = struct {
@@ -126,10 +126,9 @@ fn readFile(alloc: std.mem.Allocator, file_path: []const u8) ![]const u8 {
 
 pub fn loadTileMap(
     allocator: std.mem.Allocator,
+    texture_map: *TextureMap,
     file_path_segments: [][]const u8,
 ) !TileMap {
-    var texture_map = TextureMap.init(allocator);
-
     var leaky_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer leaky_allocator.deinit();
 
@@ -188,35 +187,33 @@ pub fn loadTileMap(
         const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
         defer allocator.free(image_path);
 
-        const texture = rl.loadTexture(image_path);
-        try texture_map.put(tile_set_id, &texture);
+        const texture_ptr = try allocator.create(rl.Texture2D);
+        texture_ptr.* = rl.loadTexture(image_path);
+        try texture_map.put(tile_set_id, texture_ptr);
 
         parsed_tile_set.tilesetid = tile_set_id;
         parsed_tile_set.firstgid = tile_set_ref.firstgid;
         tile_sets[idx] = parsed_tile_set;
     }
 
-    for (tile_sets) |tile_set| {
-        std.debug.print("{?}\n", .{tile_set});
-    }
-
-    std.debug.print("file_data: {?}\n", .{tile_map_json});
-
     var layers: []Layer = try allocator.alloc(Layer, tile_map_json.layers.len);
 
     for (0.., tile_map_json.layers) |idx, raw_layer| {
-        var layer_tiles = try allocator.alloc(LayerTile, raw_layer.data.len);
+        var layer_tiles = try allocator.alloc(?LayerTile, raw_layer.data.len);
         for (0.., raw_layer.data) |tile_idx, global_id| {
-            if (global_id == 0) continue;
+            if (global_id == 0) {
+                layer_tiles[tile_idx] = null;
+                continue;
+            }
             const tile_set = try tileSetForGid(global_id, tile_sets);
-            const layer_tile = LayerTile{
+            const local_id = global_id - tile_set.firstgid;
+            layer_tiles[tile_idx] = LayerTile{
                 .tile_set_id = tile_set.tilesetid,
                 .global_id = global_id,
                 .local_id = global_id - tile_set.firstgid,
-                .tile_set_row = @as(u32, @intCast(tile_idx)) / raw_layer.width,
-                .tile_set_column = @as(u32, @intCast(tile_idx)) % raw_layer.width,
+                .tile_set_row = local_id / tile_set.columns,
+                .tile_set_column = local_id % tile_set.columns,
             };
-            layer_tiles[tile_idx] = layer_tile;
         }
         const layer_type = try CustomProperty.getLayerType(raw_layer.properties);
         layers[idx] = Layer{

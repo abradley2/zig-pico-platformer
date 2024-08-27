@@ -14,19 +14,14 @@ pub fn main() anyerror!void {
     const playerEntityId = try entity.makePlayerEntity(&world);
     _ = playerEntityId;
 
-    var screenWidth: f32 = 800;
+    var screenWidth: f32 = 1000;
     var screenHeight: f32 = 600;
-
-    var level_one_path = [2][]const u8{
-        "levels",
-        "level_01.json",
-    };
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
-        .msaa_4x_hint = true,
-        .vsync_hint = true,
-        .fullscreen_mode = false,
+        // .msaa_4x_hint = true,
+        // .vsync_hint = true,
+        // .fullscreen_mode = true,
     });
 
     rl.initWindow(
@@ -35,8 +30,19 @@ pub fn main() anyerror!void {
         "raylib-zig [core] example - basic window",
     );
 
-    const tileMap = try tiled.loadTileMap(worldAllocator.allocator(), &level_one_path);
-    std.debug.print("tileMap: {?}\n", .{tileMap});
+    var texture_map: tiled.TextureMap = tiled.TextureMap.init(worldAllocator.allocator());
+
+    var level_one_path = [2][]const u8{
+        "levels",
+        "level_01.json",
+    };
+    const tile_map = try tiled.loadTileMap(
+        worldAllocator.allocator(),
+        &texture_map,
+        &level_one_path,
+    );
+
+    // const map_texture = rl.loadTexture("assets/image/tile_map.png");
 
     defer rl.closeWindow(); // Close window and OpenGL context
 
@@ -44,7 +50,7 @@ pub fn main() anyerror!void {
     //--------------------------------------------------------------------------------------
 
     var camera = rl.Camera2D{
-        .offset = rl.Vector2{ .x = -14, .y = -14 },
+        .offset = rl.Vector2{ .x = 0, .y = 0 },
         .target = rl.Vector2{ .x = 0, .y = 0 },
         .rotation = 0,
         .zoom = 1,
@@ -73,6 +79,48 @@ pub fn main() anyerror!void {
         defer rl.endMode2D();
 
         rl.clearBackground(rl.Color.black);
+
+        for (tile_map.layers) |layer| {
+            var column: f32 = 0;
+            var row: f32 = 0;
+            for (layer.tiles) |tile_slot| {
+                if (tile_slot) |tile| {
+                    const src_x = tile.tile_set_column * tile_map.tile_width;
+                    const src_y = tile.tile_set_row * tile_map.tile_height;
+
+                    const src_rect = rl.Rectangle{
+                        .x = @floatFromInt(src_x),
+                        .y = @floatFromInt(src_y),
+                        .width = 16,
+                        .height = 16,
+                    };
+
+                    const dst_x = @as(u32, @intFromFloat(@round(column))) * tile_map.tile_width;
+                    const dst_y = @as(u32, @intFromFloat(@round(row))) * tile_map.tile_height;
+
+                    const dst_rect = rl.Rectangle{
+                        .x = @floatFromInt(dst_x),
+                        .y = @floatFromInt(dst_y),
+                        .width = @floatFromInt(tile_map.tile_width),
+                        .height = @floatFromInt(tile_map.tile_height),
+                    };
+
+                    const texture = texture_map.get(tile.tile_set_id) orelse continue;
+                    rl.drawTextureRec(
+                        texture.*,
+                        src_rect,
+                        rl.Vector2{ .x = dst_rect.x, .y = dst_rect.y },
+                        rl.Color.white,
+                    );
+                }
+
+                column = column + 1;
+                if (@as(u32, @intFromFloat(@round(column))) >= tile_map.columns) {
+                    column = 0;
+                    row = row + 1;
+                }
+            }
+        }
 
         for (
             world.debug_render_components,
