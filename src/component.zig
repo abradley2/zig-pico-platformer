@@ -27,4 +27,5 @@ pub const CollisionBox: type = struct {
     y_offset: f32,
     width: f32,
     height: f32,
+    did_touch_ground: bool,
 };

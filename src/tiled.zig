@@ -35,11 +35,11 @@ pub const CustomProperty = struct {
         return false;
     }
 
-    pub fn getIsCollidable(properties: []CustomProperty) !bool {
+    pub fn getIsCollisionBox(properties: []CustomProperty) !bool {
         for (properties) |property| {
             if (std.mem.eql(u8, "is_collision_box", property.name)) {
                 switch (property.value) {
-                    std.json.Value.Bool => |v| return v,
+                    std.json.Value.bool => |v| return v,
                     else => return error.UnexpectedCustomPropertyType,
                 }
             }
@@ -121,6 +121,8 @@ const TileMapData = struct {
 pub const LayerTile = struct {
     global_id: u32,
     local_id: u32,
+    tile_map_row: u32,
+    tile_map_column: u32,
     tile_set_row: u32,
     tile_set_column: u32,
     tile_set_id: TileSetID,
@@ -227,7 +229,16 @@ pub fn loadTileMap(
 
     for (0.., tile_map_json.layers) |idx, raw_layer| {
         var layer_tiles = try allocator.alloc(?LayerTile, raw_layer.data.len);
+        var tile_map_row: u32 = 0;
+        var tile_map_column: u32 = 0;
         for (0.., raw_layer.data) |tile_idx, global_id| {
+            defer {
+                tile_map_column += 1;
+                if (tile_map_column == raw_layer.width) {
+                    tile_map_column = 0;
+                    tile_map_row += 1;
+                }
+            }
             if (global_id == 0) {
                 layer_tiles[tile_idx] = null;
                 continue;
@@ -245,6 +256,8 @@ pub fn loadTileMap(
             layer_tiles[tile_idx] = LayerTile{
                 .tile_set_id = tile_set.tilesetid,
                 .global_id = global_id,
+                .tile_map_column = tile_map_column,
+                .tile_map_row = tile_map_row,
                 .local_id = global_id - tile_set.firstgid,
                 .tile_set_row = local_id / tile_set.columns,
                 .tile_set_column = local_id % tile_set.columns,

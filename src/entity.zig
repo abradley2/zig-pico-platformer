@@ -2,11 +2,11 @@ const World = @import("World.zig");
 const component = @import("component.zig");
 const rl = @import("raylib");
 
-pub fn makePlayerEntity(world: *World) error{OutOfMemory}!usize {
+pub fn makePlayerEntity(start_x: f32, start_y: f32, world: *World) error{OutOfMemory}!usize {
     const player = try world.createEntity();
     world.position_components[player] = component.Position{
-        .x = 128,
-        .y = 128,
+        .x = start_x,
+        .y = start_y,
     };
     world.velocity_components[player] = component.Velocity{
         .dx = 0,

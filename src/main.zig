@@ -5,24 +5,18 @@ const component = @import("component.zig");
 const entity = @import("entity.zig");
 const system = @import("system.zig");
 const tiled = @import("tiled.zig");
-const scene = @import("scene.zig");
+const Scene = @import("Scene.zig");
 
 pub fn main() anyerror!void {
     var worldAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
 
     var world = try World.init(worldAllocator.allocator());
 
-    const playerEntityId = try entity.makePlayerEntity(&world);
-    _ = playerEntityId;
-
     var screenWidth: f32 = 1000;
     var screenHeight: f32 = 600;
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
-        // .msaa_4x_hint = true,
-        // .vsync_hint = true,
-        // .fullscreen_mode = true,
     });
 
     rl.initWindow(
@@ -43,7 +37,7 @@ pub fn main() anyerror!void {
         &level_one_path,
     );
 
-    try scene.init(tile_map, &world);
+    _ = try Scene.init(worldAllocator.allocator(), tile_map, &world);
 
     // const map_texture = rl.loadTexture("assets/image/tile_map.png");
 
@@ -83,6 +77,9 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(rl.Color.black);
 
+        const tile_height: f32 = @as(f32, @floatFromInt(tile_map.tile_height));
+        const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
+
         for (tile_map.layers) |layer| {
             if (layer.layer_type != tiled.LayerType.Display) {
                 continue;
@@ -101,12 +98,12 @@ pub fn main() anyerror!void {
                         .height = 16,
                     };
 
-                    const dst_x = @as(u32, @intFromFloat(@round(column))) * tile_map.tile_width;
-                    const dst_y = @as(u32, @intFromFloat(@round(row))) * tile_map.tile_height;
+                    const dst_x = column * tile_width;
+                    const dst_y = row * tile_height;
 
                     const dst_rect = rl.Rectangle{
-                        .x = @floatFromInt(dst_x),
-                        .y = @floatFromInt(dst_y),
+                        .x = dst_x,
+                        .y = dst_y,
                         .width = @floatFromInt(tile_map.tile_width),
                         .height = @floatFromInt(tile_map.tile_height),
                     };
