@@ -83,7 +83,7 @@ pub fn runGravitySystem(delta: f32, w: World) void {
         const collision_box = has_collision_box orelse continue;
 
         if (collision_box.did_touch_ground == false) {
-            velocity.dy += 0.1 * delta;
+            velocity.dy += 0.25 * delta;
 
             w.velocity_components[entityId] = velocity;
         }
@@ -124,9 +124,18 @@ pub fn playerControlsSystems(
 
         if (collision_box.did_touch_ground) {
             if (keyboard.spacebar_pressed) {
-                velocity.dy = -5;
-                world.velocity_components[player_entity_id] = velocity;
+                velocity.dy = -6;
             }
         }
+
+        if (keyboard.left_is_down) {
+            velocity.dx = -2;
+        } else if (keyboard.right_is_down) {
+            velocity.dx = 2;
+        } else {
+            velocity.dx = 0;
+        }
+
+        world.velocity_components[player_entity_id] = velocity;
     }
 }
