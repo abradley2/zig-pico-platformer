@@ -5,6 +5,7 @@ const component = @import("component.zig");
 const entity = @import("entity.zig");
 const system = @import("system.zig");
 const tiled = @import("tiled.zig");
+const scene = @import("scene.zig");
 
 pub fn main() anyerror!void {
     var worldAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -41,6 +42,8 @@ pub fn main() anyerror!void {
         &texture_map,
         &level_one_path,
     );
+
+    try scene.init(tile_map, &world);
 
     // const map_texture = rl.loadTexture("assets/image/tile_map.png");
 
@@ -81,6 +84,9 @@ pub fn main() anyerror!void {
         rl.clearBackground(rl.Color.black);
 
         for (tile_map.layers) |layer| {
+            if (layer.layer_type != tiled.LayerType.Display) {
+                continue;
+            }
             var column: f32 = 0;
             var row: f32 = 0;
             for (layer.tiles) |tile_slot| {
@@ -146,5 +152,7 @@ pub fn main() anyerror!void {
                 debug_render.color,
             );
         }
+
+        rl.drawFPS(10, 10);
     }
 }

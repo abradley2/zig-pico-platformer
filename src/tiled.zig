@@ -1,7 +1,12 @@
 const std = @import("std");
 const rl = @import("raylib");
 
-const CustomProperty = struct {
+const TileCustomProperty: type = struct {
+    id: u32,
+    properties: []CustomProperty,
+};
+
+pub const CustomProperty = struct {
     name: []const u8,
     type: []const u8,
     value: std.json.Value,
@@ -10,10 +15,7 @@ const CustomProperty = struct {
         for (properties) |property| {
             if (std.mem.eql(u8, "layer_type", property.name)) {
                 switch (property.value) {
-                    std.json.Value.string => |v| {
-                        const layer_type = try LayerType.fromString(v);
-                        return layer_type;
-                    },
+                    std.json.Value.string => |v| return try LayerType.fromString(v),
                     else => return error.UnexpectedCustomPropertyType,
                 }
             }
@@ -21,15 +23,28 @@ const CustomProperty = struct {
         return null;
     }
 
-    pub fn getIsCollidable(properties: []CustomProperty) !bool {
+    pub fn getIsPlayerSpawn(properties: []CustomProperty) !bool {
         for (properties) |property| {
-            if (std.mem.eql(u8, "is_collidable", property.name)) {
+            if (std.mem.eql(u8, "is_player_spawn", property.name)) {
                 switch (property.value) {
-                    std.json.Value.Bool => |v| return v,
-                    _ => return error.UnexpectedCustomPropertyType,
+                    std.json.Value.bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
                 }
             }
         }
+        return false;
+    }
+
+    pub fn getIsCollidable(properties: []CustomProperty) !bool {
+        for (properties) |property| {
+            if (std.mem.eql(u8, "is_collision_box", property.name)) {
+                switch (property.value) {
+                    std.json.Value.Bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
+                }
+            }
+        }
+        return false;
     }
 };
 
@@ -73,6 +88,15 @@ const TileSetData = struct {
     image: []const u8,
     columns: u32,
     tilecount: u32,
+    tiles: []TileCustomProperty,
+    pub fn getCustomPropertiesFor(self: TileSetData, local_id: u32) ?[]CustomProperty {
+        for (self.tiles) |tile| {
+            if (tile.id == local_id) {
+                return tile.properties;
+            }
+        }
+        return null;
+    }
 };
 
 const TileSetRefData = struct {
@@ -100,6 +124,7 @@ pub const LayerTile = struct {
     tile_set_row: u32,
     tile_set_column: u32,
     tile_set_id: TileSetID,
+    custom_properties: ?[]CustomProperty,
 };
 
 pub const Layer = struct {
@@ -181,9 +206,11 @@ pub fn loadTileMap(
         );
 
         const tile_set_dir_path = std.fs.path.dirname(tile_set_path) orelse "";
+
         var image_path_segments: [2][]const u8 = undefined;
         image_path_segments[0] = tile_set_dir_path;
         image_path_segments[1] = parsed_tile_set.image;
+
         const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
         defer allocator.free(image_path);
 
@@ -207,12 +234,21 @@ pub fn loadTileMap(
             }
             const tile_set = try tileSetForGid(global_id, tile_sets);
             const local_id = global_id - tile_set.firstgid;
+
+            var tile_custom_properties: ?[]CustomProperty = null;
+            if (tile_set.getCustomPropertiesFor(local_id)) |custom_properties| {
+                const properties_list = try allocator.alloc(CustomProperty, custom_properties.len);
+                @memcpy(properties_list, custom_properties);
+                tile_custom_properties = properties_list;
+            }
+
             layer_tiles[tile_idx] = LayerTile{
                 .tile_set_id = tile_set.tilesetid,
                 .global_id = global_id,
                 .local_id = global_id - tile_set.firstgid,
                 .tile_set_row = local_id / tile_set.columns,
                 .tile_set_column = local_id % tile_set.columns,
+                .custom_properties = tile_custom_properties,
             };
         }
         const layer_type = try CustomProperty.getLayerType(raw_layer.properties);
