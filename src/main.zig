@@ -5,7 +5,7 @@ const component = @import("component.zig");
 const entity = @import("entity.zig");
 const system = @import("system.zig");
 const tiled = @import("tiled.zig");
-const Scene = @import("Scene.zig");
+const Scene = @import("Scene.zig").Scene;
 
 pub fn main() anyerror!void {
     var worldAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -37,9 +37,7 @@ pub fn main() anyerror!void {
         &level_one_path,
     );
 
-    _ = try Scene.init(worldAllocator.allocator(), tile_map, &world);
-
-    // const map_texture = rl.loadTexture("assets/image/tile_map.png");
+    const scene: Scene = try Scene.init(worldAllocator.allocator(), tile_map, &world);
 
     defer rl.closeWindow(); // Close window and OpenGL context
 
@@ -67,6 +65,10 @@ pub fn main() anyerror!void {
 
         camera.zoom = zoom;
 
+        // _ = scene;
+
+        system.runCollisionSystem(delta, scene, world);
+        system.runGravitySystem(delta, world);
         system.runMovementSystem(delta, world);
 
         rl.beginDrawing();

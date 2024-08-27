@@ -4,7 +4,7 @@ const tiled = @import("tiled.zig");
 const entity = @import("entity.zig");
 const rl = @import("raylib");
 
-const Scene = @This();
+pub const Scene = @This();
 
 allocator: std.mem.Allocator,
 player_entity_id: ?usize,

@@ -12,6 +12,13 @@ pub fn makePlayerEntity(start_x: f32, start_y: f32, world: *World) error{OutOfMe
         .dx = 0,
         .dy = 0,
     };
+    world.collision_box_components[player] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
+        .width = 16,
+        .height = 16,
+        .did_touch_ground = false,
+    };
     world.debug_render_components[player] = component.DebugRender{
         .color = rl.Color.red,
         .width = 16,
