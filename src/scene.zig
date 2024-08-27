@@ -8,7 +8,7 @@ pub const Scene = @This();
 
 allocator: std.mem.Allocator,
 player_entity_id: ?usize,
-collision_boxes: []rl.Rectangle,
+collision_boxes: std.ArrayList(rl.Rectangle),
 
 pub fn init(allocator: std.mem.Allocator, tile_map: tiled.TileMap, world: *World) !Scene {
     var player_entity_id: ?usize = null;
@@ -45,6 +45,6 @@ pub fn init(allocator: std.mem.Allocator, tile_map: tiled.TileMap, world: *World
     return Scene{
         .allocator = allocator,
         .player_entity_id = player_entity_id,
-        .collision_boxes = collision_box_list.items,
+        .collision_boxes = collision_box_list,
     };
 }

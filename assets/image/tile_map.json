@@ -442,6 +442,15 @@
                 }]
         }, 
         {
+         "id":321,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":384,
          "properties":[
                 {

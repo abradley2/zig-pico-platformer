@@ -5,7 +5,8 @@ const component = @import("component.zig");
 const entity = @import("entity.zig");
 const system = @import("system.zig");
 const tiled = @import("tiled.zig");
-const Scene = @import("Scene.zig").Scene;
+const Scene = @import("Scene.zig");
+const Keyboard = @import("Keyboard.zig");
 
 pub fn main() anyerror!void {
     var worldAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -52,9 +53,12 @@ pub fn main() anyerror!void {
     };
 
     const base_game_width: f32 = 800;
+    var keyboard = Keyboard{};
 
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
+        keyboard = keyboard.updateKeyboard();
+
         if (rl.isWindowResized()) {
             screenWidth = @floatFromInt(rl.getScreenWidth());
             screenHeight = @floatFromInt(rl.getScreenHeight());
@@ -67,6 +71,7 @@ pub fn main() anyerror!void {
 
         // _ = scene;
 
+        system.playerControlsSystems(keyboard, scene, world);
         system.runCollisionSystem(delta, scene, world);
         system.runGravitySystem(delta, world);
         system.runMovementSystem(delta, world);
