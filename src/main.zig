@@ -18,6 +18,7 @@ pub fn main() anyerror!void {
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
+        .fullscreen_mode = true,
     });
 
     rl.initWindow(
