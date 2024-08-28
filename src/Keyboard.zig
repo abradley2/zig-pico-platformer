@@ -12,11 +12,12 @@ spacebar_is_down: bool = false,
 spacebar_pressed: bool = false,
 
 pub fn updateKeyboard(self: Keyboard) Keyboard {
+    _ = self;
     const left_is_down = rl.isKeyDown(rl.KeyboardKey.key_left);
-    const left_pressed = left_is_down and !self.left_is_down;
+    const left_pressed = rl.isKeyPressed(rl.KeyboardKey.key_left);
 
     const right_is_down = rl.isKeyDown(rl.KeyboardKey.key_right);
-    const right_pressed = right_is_down and !self.right_is_down;
+    const right_pressed = rl.isKeyPressed(rl.KeyboardKey.key_right);
 
     const spacebar_is_down = rl.isKeyDown(rl.KeyboardKey.key_space);
     const spacebar_pressed = rl.isKeyPressed(rl.KeyboardKey.key_space);
