@@ -496,7 +496,52 @@
                 }]
         }, 
         {
+         "id":320,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":321,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":322,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":352,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":353,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":354,
          "properties":[
                 {
                  "name":"is_collision_box",

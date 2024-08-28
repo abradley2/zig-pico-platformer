@@ -103,9 +103,7 @@ pub fn runCollisionSystem(
                 entity_y2,
                 scene_collision_box,
             )) {
-                const collided_with = scene_collision_box;
-
-                const is_floor = collided_with.y > entity_y1;
+                const is_floor = scene_collision_box.y > entity_y1;
                 const is_wall = is_floor == false;
 
                 if (is_floor) {
