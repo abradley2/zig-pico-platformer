@@ -2,39 +2,19 @@ const World = @import("World.zig");
 const component = @import("component.zig");
 const rl = @import("raylib");
 const tiled = @import("tiled.zig");
+const Slice = @import("Slice.zig");
 
-pub fn Slice(
-    comptime Item: type,
-    comptime n: usize,
-    comptime cap: usize,
-) type {
-    if (n > cap) {
-        @compileError("n must be less than or equal to cap");
-    }
-    return struct {
-        pub const T: type = struct { [cap]Item, usize };
-
-        pub fn init(s: [n]Item) struct { [cap]Item, usize } {
-            var arr: [cap]Item = undefined;
-            for (s, 0..) |elem, i| {
-                arr[i] = elem;
-            }
-            return .{ arr, n };
-        }
-    };
-}
-
-const player_run_animation = Slice(rl.Rectangle, 3, 10).init(.{
+const player_run_animation = Slice.Make(rl.Rectangle, 3, 10).init(.{
     rl.Rectangle{ .x = 16, .y = 192, .width = 16, .height = 16 },
     rl.Rectangle{ .x = 32, .y = 192, .width = 16, .height = 16 },
     rl.Rectangle{ .x = 48, .y = 192, .width = 16, .height = 16 },
 });
 
-const player_idle_animation = Slice(rl.Rectangle, 1, 10).init(.{
+const player_idle_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
     rl.Rectangle{ .x = 0, .y = 192, .width = 16, .height = 16 },
 });
 
-const player_jump_animation = Slice(rl.Rectangle, 1, 10).init(.{
+const player_jump_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
     rl.Rectangle{ .x = 64, .y = 192, .width = 16, .height = 16 },
 });
 

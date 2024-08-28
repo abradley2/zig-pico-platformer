@@ -76,12 +76,11 @@ pub fn main() anyerror!void {
 
         camera.zoom = zoom;
 
-        // _ = scene;
-
         system.playerControlsSystems(keyboard, scene, world);
         system.runCollisionSystem(delta, scene, world);
         system.runGravitySystem(delta, world);
         system.runMovementSystem(delta, world);
+        system.runAnimationSystem(delta, world);
 
         rl.beginDrawing();
         defer rl.endDrawing();
@@ -139,28 +138,28 @@ pub fn main() anyerror!void {
             }
         }
 
-        for (
-            world.debug_render_components,
-            world.position_components,
-        ) |
-            has_debug_render,
+        for (0.., world.position_components, world.collision_box_components, world.animated_sprite_components) |
+            entity_id,
             has_position,
+            has_collision_box,
+            has_animated_sprite,
         | {
-            const debug_render = has_debug_render orelse continue;
+            _ = entity_id;
             const position = has_position orelse continue;
+            const collision_box = has_collision_box orelse continue;
+            const animated_sprite = has_animated_sprite orelse continue;
 
-            const rect = rl.Rectangle{
-                .x = position.x,
-                .y = position.y,
-                .width = debug_render.width,
-                .height = debug_render.height,
-            };
+            const animation_rects = animated_sprite.animation_rects.@"0";
+            const animation_rect = animation_rects[animated_sprite.current_frame];
 
-            rl.drawRectanglePro(
-                rect,
-                rl.Vector2{ .x = 0, .y = 0 },
-                0,
-                debug_render.color,
+            rl.drawTextureRec(
+                animated_sprite.texture.*,
+                animation_rect,
+                rl.Vector2{
+                    .x = position.x + collision_box.x_offset,
+                    .y = position.y + collision_box.y_offset,
+                },
+                rl.Color.white,
             );
         }
 

@@ -1,10 +1,11 @@
 const rl = @import("raylib");
 const tiled = @import("tiled.zig");
+const Slice = @import("Slice.zig");
 
 pub const AnimatedSprite: type = struct {
     texture: *const rl.Texture2D,
-    animation_rects: struct { [10]rl.Rectangle, usize },
-    play_animation: ?struct { [10]rl.Rectangle, usize },
+    animation_rects: Slice.Make(rl.Rectangle, 0, 10).T,
+    play_animation: ?Slice.Make(rl.Rectangle, 0, 10).T,
     delta_per_frame: f32,
     current_delta: f32,
     current_frame: usize,

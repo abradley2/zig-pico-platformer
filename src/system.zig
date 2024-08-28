@@ -139,3 +139,25 @@ pub fn playerControlsSystems(
         world.velocity_components[player_entity_id] = velocity;
     }
 }
+
+pub fn runAnimationSystem(delta: f32, world: World) void {
+    for (0.., world.animated_sprite_components) |
+        entity_id,
+        has_animated_sprite,
+    | {
+        var animated_sprite = has_animated_sprite orelse continue;
+
+        animated_sprite.current_delta += delta;
+        if (animated_sprite.current_delta >= animated_sprite.delta_per_frame) {
+            var next_frame = animated_sprite.current_frame + 1;
+            const frame_len = animated_sprite.animation_rects.@"1";
+            if (next_frame >= frame_len) {
+                next_frame = 0;
+            }
+            animated_sprite.current_frame = next_frame;
+            animated_sprite.current_delta = 0;
+        }
+
+        world.animated_sprite_components[entity_id] = animated_sprite;
+    }
+}
