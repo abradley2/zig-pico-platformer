@@ -18,7 +18,7 @@ pub fn main() anyerror!void {
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
-        .fullscreen_mode = true,
+        .fullscreen_mode = false,
     });
 
     rl.initWindow(
@@ -40,7 +40,12 @@ pub fn main() anyerror!void {
     );
     defer tile_map.deinit();
 
-    const scene: Scene = try Scene.init(game_allocator.allocator(), tile_map, &world);
+    const scene: Scene = try Scene.init(
+        game_allocator.allocator(),
+        texture_map,
+        tile_map,
+        &world,
+    );
 
     defer rl.closeWindow(); // Close window and OpenGL context
 

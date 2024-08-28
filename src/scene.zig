@@ -10,7 +10,12 @@ allocator: std.mem.Allocator,
 player_entity_id: ?usize,
 collision_boxes: std.ArrayList(rl.Rectangle),
 
-pub fn init(allocator: std.mem.Allocator, tile_map: tiled.TileMap, world: *World) !Scene {
+pub fn init(
+    allocator: std.mem.Allocator,
+    texture_map: tiled.TextureMap,
+    tile_map: tiled.TileMap,
+    world: *World,
+) !Scene {
     var player_entity_id: ?usize = null;
     var collision_box_list = std.ArrayList(rl.Rectangle).init(allocator);
     for (tile_map.layers) |layer| {
@@ -36,7 +41,7 @@ pub fn init(allocator: std.mem.Allocator, tile_map: tiled.TileMap, world: *World
                 if (is_player_spawn) {
                     const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
-                    player_entity_id = try entity.makePlayerEntity(start_x, start_y, world);
+                    player_entity_id = try entity.makePlayerEntity(start_x, start_y, texture_map, world);
                 }
             }
         }

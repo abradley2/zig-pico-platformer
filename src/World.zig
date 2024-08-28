@@ -8,6 +8,7 @@ const World = @This();
 active_ids: std.AutoHashMap(usize, bool),
 inactive_ids: std.AutoHashMap(usize, bool),
 
+animated_sprite_components: []?component.AnimatedSprite,
 texture_render_components: []?component.TextureRender,
 debug_render_components: []?component.DebugRender,
 position_components: []?component.Position,
@@ -15,6 +16,7 @@ velocity_components: []?component.Velocity,
 collision_box_components: []?component.CollisionBox,
 
 pub fn freeEntity(self: *World, entity_id: usize) void {
+    self.animated_sprite_components[entity_id] = null;
     self.texture_components[entity_id] = null;
     self.debug_render_components[entity_id] = null;
     self.position_components[entity_id] = null;
@@ -37,12 +39,14 @@ pub fn createEntity(self: *World) error{OutOfMemory}!usize {
 }
 
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
+    const animated_sprite_components = try allocator.alloc(?component.AnimatedSprite, max_entity_count);
     const texture_render_components = try allocator.alloc(?component.TextureRender, max_entity_count);
     const debug_render_components = try allocator.alloc(?component.DebugRender, max_entity_count);
     const position_components = try allocator.alloc(?component.Position, max_entity_count);
     const velocity_components = try allocator.alloc(?component.Velocity, max_entity_count);
     const collision_box_components = try allocator.alloc(?component.CollisionBox, max_entity_count);
 
+    initToNull(component.AnimatedSprite, animated_sprite_components);
     initToNull(component.TextureRender, texture_render_components);
     initToNull(component.DebugRender, debug_render_components);
     initToNull(component.Position, position_components);
@@ -59,6 +63,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     return World{
         .active_ids = active_ids,
         .inactive_ids = inactive_ids,
+        .animated_sprite_components = animated_sprite_components,
         .texture_render_components = texture_render_components,
         .debug_render_components = debug_render_components,
         .position_components = position_components,
