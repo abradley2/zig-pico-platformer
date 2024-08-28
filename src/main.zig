@@ -53,13 +53,13 @@ pub fn main() anyerror!void {
     //--------------------------------------------------------------------------------------
 
     var camera = rl.Camera2D{
-        .offset = rl.Vector2{ .x = -200, .y = -200 },
+        .offset = rl.Vector2{ .x = 0, .y = 0 },
         .target = rl.Vector2{ .x = 0, .y = 0 },
         .rotation = 0,
         .zoom = 1,
     };
 
-    const base_game_width: f32 = 400;
+    const base_game_width: f32 = 800;
     var keyboard = Keyboard{};
 
     // Main game loop
@@ -165,5 +165,6 @@ pub fn main() anyerror!void {
         }
 
         rl.drawFPS(10, 10);
+        rl.drawFPS(100, 100);
     }
 }

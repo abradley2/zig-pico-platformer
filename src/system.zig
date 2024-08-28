@@ -50,23 +50,45 @@ pub fn runCollisionSystem(
         const entity_y2 = entity_y1 + collision_box.height;
 
         var touched_ground = false;
+        var touched_wall = false;
         for (scene.collision_boxes.items) |scene_collision_box| {
-            if (does_collide(entity_x1, entity_y1, entity_x2, entity_y2, scene_collision_box)) {
-                velocity.dy = 0;
-                position.y = scene_collision_box.y - scene_collision_box.height;
-                collision_box.did_touch_ground = true;
+            if (does_collide(
+                entity_x1,
+                entity_y1,
+                entity_x2,
+                entity_y2,
+                scene_collision_box,
+            )) {
+                const collided_with = scene_collision_box;
+
+                const is_floor = collided_with.y > entity_y1;
+                const is_wall = is_floor == false;
+
+                if (is_floor) {
+                    position.y = scene_collision_box.y - scene_collision_box.height;
+                    velocity.dy = 0;
+                    touched_ground = true;
+                }
+
+                if (is_wall) {
+                    // need to check if it is a wall to the left or right first
+                    if (entity_x1 < scene_collision_box.x) {
+                        position.x = scene_collision_box.x - collision_box.width;
+                    } else {
+                        position.x = scene_collision_box.x + scene_collision_box.width;
+                    }
+                    velocity.dx = 0;
+                    touched_wall = true;
+                }
 
                 w.collision_box_components[entityId] = collision_box;
                 w.velocity_components[entityId] = velocity;
                 w.position_components[entityId] = position;
-                touched_ground = true;
-                break;
             }
         }
-        if (touched_ground == false) {
-            collision_box.did_touch_ground = false;
-            w.collision_box_components[entityId] = collision_box;
-        }
+        collision_box.did_touch_ground = touched_ground;
+        collision_box.did_touch_wall = touched_wall;
+        w.collision_box_components[entityId] = collision_box;
     }
 }
 
@@ -92,18 +114,17 @@ pub fn runGravitySystem(delta: f32, w: World) void {
 }
 
 pub fn runMovementSystem(delta: f32, w: World) void {
-    for (
-        0..,
-        w.velocity_components,
-        w.position_components,
-    ) |
+    for (0.., w.velocity_components, w.position_components, w.collision_box_components) |
         entityId,
         has_velocity,
         has_position,
+        has_collision,
     | {
         const velocity = has_velocity orelse continue;
         var position = has_position orelse continue;
 
+        _ = has_collision;
+        // TODO: only allow movement if not colliding with anything that is contrary to movement
         position.x += velocity.dx * delta;
         position.y += velocity.dy * delta;
 
@@ -179,8 +200,16 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
     | {
         const grounded_wander = has_grounded_wander orelse continue;
         var velocity = has_velocity orelse continue;
-        const direction = has_direction orelse continue;
+        var direction = has_direction orelse continue;
         const collision_box = has_collision_box orelse continue;
+
+        if (collision_box.did_touch_wall) {
+            if (direction == component.Direction.Left) {
+                direction = component.Direction.Right;
+            } else {
+                direction = component.Direction.Left;
+            }
+        }
 
         if (direction == component.Direction.Left) {
             velocity.dx = grounded_wander.speed * -1 * delta;
@@ -188,9 +217,9 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
             velocity.dx = grounded_wander.speed * delta;
         }
 
-        _ = collision_box;
         _ = scene;
 
+        world.direction_components[entity_id] = direction;
         world.velocity_components[entity_id] = velocity;
     }
 }
