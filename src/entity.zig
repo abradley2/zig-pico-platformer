@@ -29,7 +29,7 @@ pub fn makePlayerEntity(
 
     world.animated_sprite_components[player] = component.AnimatedSprite{
         .texture = texture,
-        .animation_rects = player_idle_animation,
+        .animation_rects = player_run_animation,
         .play_animation = null,
         .delta_per_frame = 10,
         .current_delta = 0,
@@ -50,10 +50,55 @@ pub fn makePlayerEntity(
         .height = 16,
         .did_touch_ground = false,
     };
-    world.debug_render_components[player] = component.DebugRender{
-        .color = rl.Color.red,
+
+    return player;
+}
+
+const bouncer_default_animation = Slice.Make(rl.Rectangle, 3, 10).init(.{
+    rl.Rectangle{ .x = 0, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 16, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 32, .y = 288, .width = 16, .height = 16 },
+});
+
+const bouncer_impact_animation = Slice.Make(rl.Rectangle, 6, 10).init(.{
+    rl.Rectangle{ .x = 48, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 64, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 80, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 80, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 80, .y = 288, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 80, .y = 288, .width = 16, .height = 16 },
+});
+
+pub fn makeBouncerEntity(
+    start_x: f32,
+    start_y: f32,
+    texture_map: tiled.TextureMap,
+    world: *World,
+) !void {
+    const bouncer = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.animated_sprite_components[bouncer] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = bouncer_default_animation,
+        .play_animation = null,
+        .delta_per_frame = 10,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+    world.position_components[bouncer] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+    world.velocity_components[bouncer] = component.Velocity{
+        .dx = 0,
+        .dy = 0,
+    };
+    world.collision_box_components[bouncer] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
         .width = 16,
         .height = 16,
+        .did_touch_ground = false,
     };
-    return player;
 }

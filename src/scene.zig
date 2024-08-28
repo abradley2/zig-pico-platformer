@@ -43,6 +43,13 @@ pub fn init(
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
                     player_entity_id = try entity.makePlayerEntity(start_x, start_y, texture_map, world);
                 }
+
+                const is_bouncer_spawn = try tiled.CustomProperty.getIsBouncerSpawn(custom_properties);
+                if (is_bouncer_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeBouncerEntity(start_x, start_y, texture_map, world);
+                }
             }
         }
     }

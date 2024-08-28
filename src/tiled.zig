@@ -23,6 +23,18 @@ pub const CustomProperty = struct {
         return null;
     }
 
+    pub fn getIsBouncerSpawn(properties: []CustomProperty) !bool {
+        for (properties) |property| {
+            if (std.mem.eql(u8, "is_bouncer_spawn", property.name)) {
+                switch (property.value) {
+                    std.json.Value.bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
+                }
+            }
+        }
+        return false;
+    }
+
     pub fn getIsPlayerSpawn(properties: []CustomProperty) !bool {
         for (properties) |property| {
             if (std.mem.eql(u8, "is_player_spawn", property.name)) {

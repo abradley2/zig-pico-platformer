@@ -159,7 +159,7 @@ pub fn main() anyerror!void {
                     .x = position.x + collision_box.x_offset,
                     .y = position.y + collision_box.y_offset,
                 },
-                rl.Color.white,
+                rl.Color.blue,
             );
         }
 

@@ -748,6 +748,69 @@
                 }]
         }, 
         {
+         "id":576,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":577,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":578,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":579,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":580,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":581,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":582,
+         "properties":[
+                {
+                 "name":"is_bouncer_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":590,
          "properties":[
                 {
