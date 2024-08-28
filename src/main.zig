@@ -47,6 +47,8 @@ pub fn main() anyerror!void {
         &world,
     );
 
+    std.debug.print("Player entityId {?}\n", .{scene.player_entity_id});
+
     defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second

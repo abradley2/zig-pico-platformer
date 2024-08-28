@@ -5,7 +5,7 @@ const rl = @import("raylib");
 const Keyboard = @import("Keyboard.zig");
 const component = @import("component.zig");
 
-fn does_collide(
+fn doesCollide(
     entity_x1: f32,
     entity_y1: f32,
     entity_x2: f32,
@@ -34,11 +34,13 @@ pub fn runCollisionSystem(
         w.position_components,
         w.collision_box_components,
         w.velocity_components,
+        w.direction_components,
     ) |
         entityId,
         has_position,
         has_collision_box,
         has_velocity,
+        has_direction,
     | {
         var position = has_position orelse continue;
         var collision_box = has_collision_box orelse continue;
@@ -51,8 +53,50 @@ pub fn runCollisionSystem(
 
         var touched_ground = false;
         var touched_wall = false;
+        var on_edge: ?bool = null;
+
+        var has_edge_collision_box: ?rl.Rectangle = null;
+        // in order to detect if something is on a ledge, we put a collision box slightly to
+        // the left or right and slightly below of the entity. If it _doesn't_ collide with
+        // anything, then we know it is on the ledge. Therefore we will set the on_edge flag
+        // to true by default, and set it to false once we detect a collision.
+        if (velocity.dy == 0) {
+            on_edge = true;
+            if (has_direction) |direction| {
+                if (direction == component.Direction.Left) {
+                    has_edge_collision_box = rl.Rectangle{
+                        .x = entity_x1 - 3,
+                        .y = entity_y2 + 3,
+                        .width = 1,
+                        .height = 2,
+                    };
+                }
+                if (direction == component.Direction.Right) {
+                    has_edge_collision_box = rl.Rectangle{
+                        .x = entity_x2 + 3,
+                        .y = entity_y2 + 3,
+                        .width = 1,
+                        .height = 2,
+                    };
+                }
+            } else {
+                on_edge = false;
+            }
+        }
         for (scene.collision_boxes.items) |scene_collision_box| {
-            if (does_collide(
+            if (has_edge_collision_box) |edge_collision_box| {
+                const did_collide = doesCollide(
+                    edge_collision_box.x,
+                    edge_collision_box.y,
+                    edge_collision_box.x + edge_collision_box.width,
+                    edge_collision_box.y + edge_collision_box.height,
+                    scene_collision_box,
+                );
+                if (did_collide) {
+                    on_edge = false;
+                }
+            }
+            if (doesCollide(
                 entity_x1,
                 entity_y1,
                 entity_x2,
@@ -86,6 +130,7 @@ pub fn runCollisionSystem(
                 w.position_components[entityId] = position;
             }
         }
+        collision_box.on_edge = on_edge;
         collision_box.did_touch_ground = touched_ground;
         collision_box.did_touch_wall = touched_wall;
         w.collision_box_components[entityId] = collision_box;
@@ -203,7 +248,7 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
         var direction = has_direction orelse continue;
         const collision_box = has_collision_box orelse continue;
 
-        if (collision_box.did_touch_wall) {
+        if (collision_box.did_touch_wall or (collision_box.on_edge orelse false)) {
             if (direction == component.Direction.Left) {
                 direction = component.Direction.Right;
             } else {

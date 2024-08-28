@@ -49,4 +49,5 @@ pub const CollisionBox: type = struct {
     height: f32,
     did_touch_ground: bool = false,
     did_touch_wall: bool = false,
+    on_edge: ?bool = null,
 };
