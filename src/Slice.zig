@@ -1,4 +1,4 @@
-// useful utility for creating slices that can be stack allocated without the boilerplate
+// useful utility for creating "slice-arrays" that can be stack allocated without the boilerplate
 pub fn Make(
     comptime Item: type,
     comptime n: usize,

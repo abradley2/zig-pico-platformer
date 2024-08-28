@@ -88,7 +88,7 @@ pub fn makeBouncerEntity(
     };
     world.direction_components[bouncer] = component.Direction.Left;
     world.grounded_wander_components[bouncer] = component.GroundedWander{
-        .speed = 1,
+        .speed = 0.25,
     };
     world.position_components[bouncer] = component.Position{
         .x = start_x,
