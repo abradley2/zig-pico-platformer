@@ -2,6 +2,15 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub const Direction = enum(u2) {
+    Left,
+    Right,
+};
+
+pub const GroundedWander: type = struct {
+    speed: f32,
+};
+
 pub const AnimatedSprite: type = struct {
     texture: *const rl.Texture2D,
     animation_rects: Slice.Make(rl.Rectangle, 0, 10).T,

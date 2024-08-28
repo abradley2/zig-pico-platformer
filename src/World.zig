@@ -8,6 +8,8 @@ const World = @This();
 active_ids: std.AutoHashMap(usize, bool),
 inactive_ids: std.AutoHashMap(usize, bool),
 
+direction_components: []?component.Direction,
+grounded_wander_components: []?component.GroundedWander,
 animated_sprite_components: []?component.AnimatedSprite,
 texture_render_components: []?component.TextureRender,
 debug_render_components: []?component.DebugRender,
@@ -16,6 +18,8 @@ velocity_components: []?component.Velocity,
 collision_box_components: []?component.CollisionBox,
 
 pub fn freeEntity(self: *World, entity_id: usize) void {
+    self.grounded_wander_components[entity_id] = null;
+    self.direction_components[entity_id] = null;
     self.animated_sprite_components[entity_id] = null;
     self.texture_components[entity_id] = null;
     self.debug_render_components[entity_id] = null;
@@ -39,6 +43,8 @@ pub fn createEntity(self: *World) error{OutOfMemory}!usize {
 }
 
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
+    const direction_components = try allocator.alloc(?component.Direction, max_entity_count);
+    const grounded_wander_components = try allocator.alloc(?component.GroundedWander, max_entity_count);
     const animated_sprite_components = try allocator.alloc(?component.AnimatedSprite, max_entity_count);
     const texture_render_components = try allocator.alloc(?component.TextureRender, max_entity_count);
     const debug_render_components = try allocator.alloc(?component.DebugRender, max_entity_count);
@@ -46,6 +52,8 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const velocity_components = try allocator.alloc(?component.Velocity, max_entity_count);
     const collision_box_components = try allocator.alloc(?component.CollisionBox, max_entity_count);
 
+    initToNull(component.Direction, direction_components);
+    initToNull(component.GroundedWander, grounded_wander_components);
     initToNull(component.AnimatedSprite, animated_sprite_components);
     initToNull(component.TextureRender, texture_render_components);
     initToNull(component.DebugRender, debug_render_components);
@@ -63,6 +71,8 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     return World{
         .active_ids = active_ids,
         .inactive_ids = inactive_ids,
+        .direction_components = direction_components,
+        .grounded_wander_components = grounded_wander_components,
         .animated_sprite_components = animated_sprite_components,
         .texture_render_components = texture_render_components,
         .debug_render_components = debug_render_components,

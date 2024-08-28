@@ -3,6 +3,7 @@ const World = @import("World.zig");
 const Scene = @import("Scene.zig");
 const rl = @import("raylib");
 const Keyboard = @import("Keyboard.zig");
+const component = @import("component.zig");
 
 fn does_collide(
     entity_x1: f32,
@@ -159,5 +160,37 @@ pub fn runAnimationSystem(delta: f32, world: World) void {
         }
 
         world.animated_sprite_components[entity_id] = animated_sprite;
+    }
+}
+
+pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
+    for (
+        0..,
+        world.grounded_wander_components,
+        world.velocity_components,
+        world.direction_components,
+        world.collision_box_components,
+    ) |
+        entity_id,
+        has_grounded_wander,
+        has_velocity,
+        has_direction,
+        has_collision_box,
+    | {
+        const grounded_wander = has_grounded_wander orelse continue;
+        var velocity = has_velocity orelse continue;
+        const direction = has_direction orelse continue;
+        const collision_box = has_collision_box orelse continue;
+
+        if (direction == component.Direction.Left) {
+            velocity.dx = grounded_wander.speed * -1 * delta;
+        } else {
+            velocity.dx = grounded_wander.speed * delta;
+        }
+
+        _ = collision_box;
+        _ = scene;
+
+        world.velocity_components[entity_id] = velocity;
     }
 }
