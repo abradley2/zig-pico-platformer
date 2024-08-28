@@ -51,13 +51,11 @@ pub const CustomProperty = struct {
 pub const TileSetID = enum(u8) {
     TileMap,
     pub fn fromString(s: []const u8) !TileSetID {
-        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-        defer _ = gpa.deinit();
+        var buffer: [128]u8 = undefined;
+        var fba = std.heap.FixedBufferAllocator.init(&buffer);
 
         var tile_map_segments = [3][]const u8{ "assets", "image", "tile_map.json" };
-        const tile_map_path = try std.fs.path.join(gpa.allocator(), &tile_map_segments);
-        defer gpa.allocator().free(tile_map_path);
-
+        const tile_map_path = try std.fs.path.join(fba.allocator(), &tile_map_segments);
         if (std.mem.eql(u8, tile_map_path, s)) {
             return TileSetID.TileMap;
         }
