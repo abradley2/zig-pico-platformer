@@ -130,105 +130,31 @@ pub const LayerTile = struct {
 };
 
 pub const Layer = struct {
+    allocator: std.mem.Allocator,
     layer_type: LayerType,
     tiles: []?LayerTile,
-};
 
-pub const TileMap = struct {
-    tile_width: u32,
-    tile_height: u32,
-    rows: u32,
-    columns: u32,
-    layers: []Layer,
-};
-
-fn readFile(alloc: std.mem.Allocator, file_path: []const u8) ![]const u8 {
-    const buf = try std.fs.cwd().readFileAlloc(
-        alloc,
-        file_path,
-        1024 * 64,
-    );
-    return buf;
-}
-
-pub fn loadTileMap(
-    allocator: std.mem.Allocator,
-    texture_map: *TextureMap,
-    file_path_segments: [][]const u8,
-) !TileMap {
-    var leaky_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer leaky_allocator.deinit();
-
-    const file_directory_segments = file_path_segments[0 .. file_path_segments.len - 1];
-
-    const file_path = try std.fs.path.join(allocator, file_path_segments);
-    defer allocator.free(file_path);
-
-    const file_directory_path = try std.fs.path.join(allocator, file_directory_segments);
-    defer allocator.free(file_directory_path);
-
-    const file_data = try readFile(allocator, file_path);
-
-    const tile_map_json = try std.json.parseFromSliceLeaky(
-        TileMapData,
-        leaky_allocator.allocator(),
-        file_data,
-        std.json.ParseOptions{
-            .ignore_unknown_fields = true,
-        },
-    );
-
-    var tile_sets = try allocator.alloc(TileSetData, tile_map_json.tilesets.len);
-    defer allocator.free(tile_sets);
-
-    for (0.., tile_map_json.tilesets) |idx, tile_set_ref| {
-        var path_segments = std.ArrayList([]const u8).init(allocator);
-        defer path_segments.deinit();
-
-        var path_segments_iterator = std.mem.splitAny(u8, tile_set_ref.source, "/\\");
-        while (path_segments_iterator.next()) |path_segment| {
-            if (std.mem.eql(u8, path_segment, "..")) continue;
-            try path_segments.append(path_segment);
+    pub fn deinit(self: Layer) void {
+        for (self.tiles) |tile_slot| {
+            const tile = tile_slot orelse continue;
+            if (tile.custom_properties) |properties| {
+                self.allocator.free(properties);
+            }
         }
-
-        const tile_set_path = try std.fs.path.join(allocator, path_segments.items);
-        defer allocator.free(tile_set_path);
-
-        const tile_set_id = try TileSetID.fromString(tile_set_path);
-
-        const tile_set_file = try readFile(allocator, tile_set_path);
-
-        var parsed_tile_set = try std.json.parseFromSliceLeaky(
-            TileSetData,
-            leaky_allocator.allocator(),
-            tile_set_file,
-            std.json.ParseOptions{
-                .ignore_unknown_fields = true,
-            },
-        );
-
-        const tile_set_dir_path = std.fs.path.dirname(tile_set_path) orelse "";
-
-        var image_path_segments: [2][]const u8 = undefined;
-        image_path_segments[0] = tile_set_dir_path;
-        image_path_segments[1] = parsed_tile_set.image;
-
-        const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
-        defer allocator.free(image_path);
-
-        const texture_ptr = try allocator.create(rl.Texture2D);
-        texture_ptr.* = rl.loadTexture(image_path);
-        try texture_map.put(tile_set_id, texture_ptr);
-
-        parsed_tile_set.tilesetid = tile_set_id;
-        parsed_tile_set.firstgid = tile_set_ref.firstgid;
-        tile_sets[idx] = parsed_tile_set;
+        self.allocator.free(self.tiles);
     }
 
-    var layers: []Layer = try allocator.alloc(Layer, tile_map_json.layers.len);
-
-    for (0.., tile_map_json.layers) |idx, raw_layer| {
-        var layer_tiles = try allocator.alloc(?LayerTile, raw_layer.data.len);
+    pub fn init(
+        allocator: std.mem.Allocator,
+        raw_layer: LayerData,
+        tile_sets: []TileSetData,
+    ) error{
+        OutOfMemory,
+        TileSetNotFound,
+        UnexpectedCustomPropertyType,
+        UnknownLayerType,
+    }!Layer {
+        var layer_tiles: []?LayerTile = try allocator.alloc(?LayerTile, raw_layer.data.len);
         var tile_map_row: u32 = 0;
         var tile_map_column: u32 = 0;
         for (0.., raw_layer.data) |tile_idx, global_id| {
@@ -249,6 +175,9 @@ pub fn loadTileMap(
             var tile_custom_properties: ?[]CustomProperty = null;
             if (tile_set.getCustomPropertiesFor(local_id)) |custom_properties| {
                 const properties_list = try allocator.alloc(CustomProperty, custom_properties.len);
+
+                // this data is derived from a slice that is passed in, so we need to copy it
+                // as we don't know when that slice will be deallocated from here
                 @memcpy(properties_list, custom_properties);
                 tile_custom_properties = properties_list;
             }
@@ -265,21 +194,129 @@ pub fn loadTileMap(
             };
         }
         const layer_type = try CustomProperty.getLayerType(raw_layer.properties);
-        layers[idx] = Layer{
+        return Layer{
+            .allocator = allocator,
             .layer_type = layer_type orelse LayerType.Display,
             .tiles = layer_tiles,
         };
     }
+};
 
-    const tile_map = TileMap{
-        .tile_width = tile_map_json.tilewidth,
-        .tile_height = tile_map_json.tileheight,
-        .rows = tile_map_json.layers[0].height,
-        .columns = tile_map_json.layers[0].width,
-        .layers = layers,
-    };
+pub const TileMap = struct {
+    allocator: std.mem.Allocator,
+    tile_width: u32,
+    tile_height: u32,
+    rows: u32,
+    columns: u32,
+    layers: []Layer,
 
-    return tile_map;
+    pub fn deinit(self: TileMap) void {
+        for (self.layers) |layer| {
+            layer.deinit();
+        }
+        self.allocator.free(self.layers);
+    }
+
+    pub fn init(
+        allocator: std.mem.Allocator,
+        texture_map: *TextureMap,
+        file_path_segments: [][]const u8,
+    ) !TileMap {
+        var leaky_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer leaky_allocator.deinit();
+
+        const file_directory_segments = file_path_segments[0 .. file_path_segments.len - 1];
+
+        const file_path = try std.fs.path.join(allocator, file_path_segments);
+        defer allocator.free(file_path);
+
+        const file_directory_path = try std.fs.path.join(allocator, file_directory_segments);
+        defer allocator.free(file_directory_path);
+
+        const file_data = try readFile(allocator, file_path);
+
+        const tile_map_json = try std.json.parseFromSliceLeaky(
+            TileMapData,
+            leaky_allocator.allocator(),
+            file_data,
+            std.json.ParseOptions{
+                .ignore_unknown_fields = true,
+            },
+        );
+
+        var tile_sets = try allocator.alloc(TileSetData, tile_map_json.tilesets.len);
+        defer allocator.free(tile_sets);
+
+        for (0.., tile_map_json.tilesets) |idx, tile_set_ref| {
+            var path_segments = std.ArrayList([]const u8).init(allocator);
+            defer path_segments.deinit();
+
+            var path_segments_iterator = std.mem.splitAny(u8, tile_set_ref.source, "/\\");
+            while (path_segments_iterator.next()) |path_segment| {
+                if (std.mem.eql(u8, path_segment, "..")) continue;
+                try path_segments.append(path_segment);
+            }
+
+            const tile_set_path = try std.fs.path.join(allocator, path_segments.items);
+            defer allocator.free(tile_set_path);
+
+            const tile_set_id = try TileSetID.fromString(tile_set_path);
+
+            const tile_set_file = try readFile(allocator, tile_set_path);
+
+            var parsed_tile_set = try std.json.parseFromSliceLeaky(
+                TileSetData,
+                leaky_allocator.allocator(),
+                tile_set_file,
+                std.json.ParseOptions{
+                    .ignore_unknown_fields = true,
+                },
+            );
+
+            const tile_set_dir_path = std.fs.path.dirname(tile_set_path) orelse "";
+
+            var image_path_segments: [2][]const u8 = undefined;
+            image_path_segments[0] = tile_set_dir_path;
+            image_path_segments[1] = parsed_tile_set.image;
+
+            const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
+            defer allocator.free(image_path);
+
+            const texture_ptr = try allocator.create(rl.Texture2D);
+            texture_ptr.* = rl.loadTexture(image_path);
+            try texture_map.put(tile_set_id, texture_ptr);
+
+            parsed_tile_set.tilesetid = tile_set_id;
+            parsed_tile_set.firstgid = tile_set_ref.firstgid;
+            tile_sets[idx] = parsed_tile_set;
+        }
+
+        var layers: []Layer = try allocator.alloc(Layer, tile_map_json.layers.len);
+
+        for (0.., tile_map_json.layers) |idx, raw_layer| {
+            layers[idx] = try Layer.init(allocator, raw_layer, tile_sets);
+        }
+
+        const tile_map = TileMap{
+            .allocator = allocator,
+            .tile_width = tile_map_json.tilewidth,
+            .tile_height = tile_map_json.tileheight,
+            .rows = tile_map_json.layers[0].height,
+            .columns = tile_map_json.layers[0].width,
+            .layers = layers,
+        };
+
+        return tile_map;
+    }
+};
+
+fn readFile(alloc: std.mem.Allocator, file_path: []const u8) ![]const u8 {
+    const buf = try std.fs.cwd().readFileAlloc(
+        alloc,
+        file_path,
+        1024 * 64,
+    );
+    return buf;
 }
 
 fn tileSetForGid(gid: u32, tile_sets: []TileSetData) !TileSetData {

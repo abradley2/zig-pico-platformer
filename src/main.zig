@@ -9,9 +9,9 @@ const Scene = @import("Scene.zig");
 const Keyboard = @import("Keyboard.zig");
 
 pub fn main() anyerror!void {
-    var worldAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    var game_allocator = std.heap.GeneralPurposeAllocator(.{}){};
 
-    var world = try World.init(worldAllocator.allocator());
+    var world = try World.init(game_allocator.allocator());
 
     var screenWidth: f32 = 1000;
     var screenHeight: f32 = 600;
@@ -26,19 +26,20 @@ pub fn main() anyerror!void {
         "raylib-zig [core] example - basic window",
     );
 
-    var texture_map: tiled.TextureMap = tiled.TextureMap.init(worldAllocator.allocator());
+    var texture_map: tiled.TextureMap = tiled.TextureMap.init(game_allocator.allocator());
 
     var level_one_path = [2][]const u8{
         "levels",
         "level_01.json",
     };
-    const tile_map = try tiled.loadTileMap(
-        worldAllocator.allocator(),
+    const tile_map = try tiled.TileMap.init(
+        game_allocator.allocator(),
         &texture_map,
         &level_one_path,
     );
+    defer tile_map.deinit();
 
-    const scene: Scene = try Scene.init(worldAllocator.allocator(), tile_map, &world);
+    const scene: Scene = try Scene.init(game_allocator.allocator(), tile_map, &world);
 
     defer rl.closeWindow(); // Close window and OpenGL context
 
