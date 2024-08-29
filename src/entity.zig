@@ -44,10 +44,10 @@ pub fn makePlayerEntity(
         .dy = 0,
     };
     world.collision_box_components[player] = component.CollisionBox{
-        .x_offset = 0,
-        .y_offset = 0,
-        .width = 16,
-        .height = 16,
+        .x_offset = 2,
+        .y_offset = 2,
+        .width = 12,
+        .height = 14,
         .did_touch_ground = false,
     };
 
@@ -88,7 +88,7 @@ pub fn makeBouncerEntity(
     };
     world.direction_components[bouncer] = component.Direction.Left;
     world.grounded_wander_components[bouncer] = component.GroundedWander{
-        .speed = 0.25,
+        .speed = 0.333,
     };
     world.position_components[bouncer] = component.Position{
         .x = start_x,
@@ -99,10 +99,10 @@ pub fn makeBouncerEntity(
         .dy = 0,
     };
     world.collision_box_components[bouncer] = component.CollisionBox{
-        .x_offset = 0,
-        .y_offset = 0,
-        .width = 16,
-        .height = 16,
+        .x_offset = 2,
+        .y_offset = 4,
+        .width = 12,
+        .height = 12,
         .did_touch_ground = false,
     };
 }

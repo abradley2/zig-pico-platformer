@@ -51,7 +51,7 @@ pub fn main() anyerror!void {
 
     defer rl.closeWindow(); // Close window and OpenGL context
 
-    rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
+    rl.setTargetFPS(61); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     var camera = rl.Camera2D{
@@ -151,7 +151,7 @@ pub fn main() anyerror!void {
             const position = has_position orelse continue;
             const collision_box = has_collision_box orelse continue;
             const animated_sprite = has_animated_sprite orelse continue;
-
+            _ = collision_box;
             const animation_rects = animated_sprite.animation_rects.@"0";
             const animation_rect = animation_rects[animated_sprite.current_frame];
 
@@ -159,8 +159,8 @@ pub fn main() anyerror!void {
                 animated_sprite.texture.*,
                 animation_rect,
                 rl.Vector2{
-                    .x = position.x + collision_box.x_offset,
-                    .y = position.y + collision_box.y_offset,
+                    .x = position.x,
+                    .y = position.y,
                 },
                 rl.Color.blue,
             );

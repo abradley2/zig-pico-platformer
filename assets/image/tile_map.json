@@ -172,6 +172,42 @@
                 }]
         }, 
         {
+         "id":99,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":100,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":101,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":102,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":103,
          "properties":[
                 {

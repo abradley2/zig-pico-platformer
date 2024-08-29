@@ -23,14 +23,11 @@ fn doesCollide(
         entity_y2 > collision_y1);
 }
 
-pub fn runEntityCollisionSystem() void {}
-
 pub fn runCollisionSystem(
     delta: f32,
     scene: Scene,
     w: World,
 ) void {
-    _ = delta;
     for (
         0..,
         w.position_components,
@@ -109,23 +106,23 @@ pub fn runCollisionSystem(
 
             const will_collide_with_floor = doesCollide(
                 entity_x1,
-                entity_y2 + velocity.dy,
+                entity_y2 + (velocity.dy * delta),
                 entity_x2,
-                entity_y2 + velocity.dy,
+                entity_y2 + (velocity.dy * delta),
                 other_collision_rect,
             );
 
             const will_collide_with_wall = doesCollide(
-                entity_x1 + velocity.dx,
+                entity_x1 + (velocity.dx * delta),
                 entity_y1,
-                entity_x2 + velocity.dx,
+                entity_x2 + (velocity.dx * delta),
                 entity_y2,
                 other_collision_rect,
             );
 
             if (will_collide_with_floor) {
                 position.y = other_collision_rect.y - other_collision_rect.height;
-                velocity.dy = 0;
+                velocity.dy = -4;
                 touched_ground = true;
             }
 
@@ -154,22 +151,24 @@ pub fn runCollisionSystem(
 
             const will_collide_with_floor = doesCollide(
                 entity_x1,
-                entity_y2 + velocity.dy,
+                entity_y2 + (velocity.dy * delta),
                 entity_x2,
-                entity_y2 + velocity.dy,
+                entity_y2 + (velocity.dy * delta),
                 scene_collision_box,
             );
 
             const will_collide_with_wall = doesCollide(
-                entity_x1 + velocity.dx,
+                entity_x1 + (velocity.dx * delta),
                 entity_y1,
-                entity_x2 + velocity.dx,
+                entity_x2 + (velocity.dx * delta),
                 entity_y2,
                 scene_collision_box,
             );
 
             if (will_collide_with_floor) {
-                position.y = scene_collision_box.y - scene_collision_box.height;
+                if (velocity.dy > 0) {
+                    position.y = scene_collision_box.y - scene_collision_box.height;
+                }
                 velocity.dy = 0;
                 touched_ground = true;
             }
@@ -203,7 +202,7 @@ pub fn runGravitySystem(delta: f32, w: World) void {
         const collision_box = has_collision_box orelse continue;
 
         if (collision_box.did_touch_ground == false) {
-            velocity.dy += 0.15 * delta;
+            velocity.dy += (0.15 * delta);
 
             w.velocity_components[entityId] = velocity;
         }
@@ -222,8 +221,8 @@ pub fn runMovementSystem(delta: f32, w: World) void {
 
         _ = has_collision;
         // TODO: only allow movement if not colliding with anything that is contrary to movement
-        position.x += velocity.dx * delta;
-        position.y += velocity.dy * delta;
+        position.x += (velocity.dx * delta);
+        position.y += (velocity.dy * delta);
 
         w.position_components[entityId] = position;
     }
@@ -243,14 +242,14 @@ pub fn playerControlsSystems(
 
         if (collision_box.did_touch_ground) {
             if (keyboard.spacebar_pressed) {
-                velocity.dy = -4;
+                velocity.dy = -3.5;
             }
         }
 
         if (keyboard.left_is_down) {
-            velocity.dx = -1.25;
+            velocity.dx = -1;
         } else if (keyboard.right_is_down) {
-            velocity.dx = 1.25;
+            velocity.dx = 1;
         } else {
             velocity.dx = 0;
         }
@@ -295,6 +294,7 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
         has_direction,
         has_collision_box,
     | {
+        _ = delta;
         const grounded_wander = has_grounded_wander orelse continue;
         var velocity = has_velocity orelse continue;
         var direction = has_direction orelse continue;
@@ -309,9 +309,13 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
         }
 
         if (direction == component.Direction.Left) {
-            velocity.dx = grounded_wander.speed * -1 * delta;
+            velocity.dx = grounded_wander.speed * -1;
         } else {
-            velocity.dx = grounded_wander.speed * delta;
+            velocity.dx = grounded_wander.speed;
+        }
+
+        if (collision_box.did_touch_ground == false) {
+            velocity.dx = 0;
         }
 
         _ = scene;
