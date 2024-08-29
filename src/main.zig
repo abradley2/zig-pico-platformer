@@ -13,8 +13,8 @@ pub fn main() anyerror!void {
 
     var world = try World.init(game_allocator.allocator());
 
-    var screenWidth: f32 = 1000;
-    var screenHeight: f32 = 600;
+    var screenWidth: f32 = 1800;
+    var screenHeight: f32 = 900;
 
     rl.setConfigFlags(rl.ConfigFlags{
         .window_resizable = true,
