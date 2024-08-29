@@ -23,6 +23,44 @@ fn doesCollide(
         entity_y2 > collision_y1);
 }
 
+pub fn runEntityCollisionSystem(
+    delta: f32,
+    world: World,
+) void {
+    for (
+        0..,
+        world.position_components,
+        world.collision_box_components,
+    ) |
+        entity_id,
+        has_position,
+        has_collision_box,
+    | {
+        const position = has_position orelse continue;
+        const collision_box = has_collision_box orelse continue;
+
+        for (
+            (entity_id + 1)..,
+            world.position_components[entity_id + 1 ..],
+            world.collision_box_components[entity_id + 1 ..],
+        ) |
+            other_entity_id,
+            other_has_position,
+            other_has_collision_box,
+        | {
+            const other_position = other_has_position orelse continue;
+            const other_collision_box = other_has_collision_box orelse continue;
+
+            _ = other_entity_id;
+            _ = delta;
+            _ = position;
+            _ = collision_box;
+            _ = other_position;
+            _ = other_collision_box;
+        }
+    }
+}
+
 pub fn runCollisionSystem(
     delta: f32,
     scene: Scene,

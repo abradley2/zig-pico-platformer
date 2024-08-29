@@ -80,6 +80,7 @@ pub fn main() anyerror!void {
 
         system.playerControlsSystems(keyboard, scene, world);
         system.runGravitySystem(delta, world);
+        system.runEntityCollisionSystem(delta, world);
         system.runCollisionSystem(delta, scene, world);
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
