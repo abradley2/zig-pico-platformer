@@ -106,3 +106,73 @@ pub fn makeBouncerEntity(
         .did_touch_ground = false,
     };
 }
+
+const x_button_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 160, .y = 0, .width = 16, .height = 16 },
+});
+
+const x_button_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 160, .y = 16, .width = 16, .height = 16 },
+});
+
+pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMap, world: *World) !void {
+    const x_button = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.position_components[x_button] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+
+    world.animated_sprite_components[x_button] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = x_button_inactive_animation,
+        .play_animation = null,
+        .delta_per_frame = 60,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+
+    world.collision_box_components[x_button] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
+        .width = 16,
+        .height = 16,
+        .did_touch_ground = false,
+    };
+}
+
+const x_block_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 160, .y = 32, .width = 16, .height = 16 },
+});
+
+const x_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 160, .y = 48, .width = 16, .height = 16 },
+});
+
+pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMap, world: *World) !void {
+    const x_block = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.position_components[x_block] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+
+    world.animated_sprite_components[x_block] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = x_block_inactive_animation,
+        .play_animation = null,
+        .delta_per_frame = 60,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+
+    world.collision_box_components[x_block] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
+        .width = 16,
+        .height = 16,
+        .did_touch_ground = false,
+    };
+}

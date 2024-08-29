@@ -50,6 +50,20 @@ pub fn init(
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
                     _ = try entity.makeBouncerEntity(start_x, start_y, texture_map, world);
                 }
+
+                const is_x_button_spawn = try tiled.CustomProperty.getIsXButtonSpawn(custom_properties);
+                if (is_x_button_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeXButtonEntity(start_x, start_y, texture_map, world);
+                }
+
+                const is_x_block_spawn = try tiled.CustomProperty.getIsXBlockSpawn(custom_properties);
+                if (is_x_block_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeXBlockEntity(start_x, start_y, texture_map, world);
+                }
             }
         }
     }

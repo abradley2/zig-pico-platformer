@@ -23,6 +23,30 @@ pub const CustomProperty = struct {
         return null;
     }
 
+    pub fn getIsXButtonSpawn(properties: []CustomProperty) !bool {
+        for (properties) |property| {
+            if (std.mem.eql(u8, "is_x_button", property.name)) {
+                switch (property.value) {
+                    std.json.Value.bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
+                }
+            }
+        }
+        return false;
+    }
+
+    pub fn getIsXBlockSpawn(properties: []CustomProperty) !bool {
+        for (properties) |property| {
+            if (std.mem.eql(u8, "is_x_block", property.name)) {
+                switch (property.value) {
+                    std.json.Value.bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
+                }
+            }
+        }
+        return false;
+    }
+
     pub fn getIsBouncerSpawn(properties: []CustomProperty) !bool {
         for (properties) |property| {
             if (std.mem.eql(u8, "is_bouncer_spawn", property.name)) {

@@ -43,6 +43,11 @@
                  "name":"is_collision_box",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"is_x_button",
+                 "type":"bool",
+                 "value":true
                 }]
         }, 
         {
@@ -86,6 +91,11 @@
          "properties":[
                 {
                  "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"is_x_button",
                  "type":"bool",
                  "value":true
                 }]
@@ -158,6 +168,11 @@
          "properties":[
                 {
                  "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"is_x_block",
                  "type":"bool",
                  "value":true
                 }]
@@ -239,6 +254,11 @@
          "properties":[
                 {
                  "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"is_x_block",
                  "type":"bool",
                  "value":true
                 }]
