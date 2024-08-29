@@ -23,6 +23,8 @@ fn doesCollide(
         entity_y2 > collision_y1);
 }
 
+pub fn runEntityCollisionSystem() void {}
+
 pub fn runCollisionSystem(
     delta: f32,
     scene: Scene,
@@ -83,6 +85,59 @@ pub fn runCollisionSystem(
                 on_edge = false;
             }
         }
+        for (
+            0..,
+            w.position_components,
+            w.collision_box_components,
+        ) |
+            other_entity_id,
+            other_has_position,
+            other_has_collision_box,
+        | {
+            if (entityId == other_entity_id) {
+                continue;
+            }
+
+            const other_position = other_has_position orelse continue;
+            const other_collision_box = other_has_collision_box orelse continue;
+            const other_collision_rect = rl.Rectangle{
+                .x = other_position.x + other_collision_box.x_offset,
+                .y = other_position.y + other_collision_box.y_offset,
+                .width = other_collision_box.width,
+                .height = other_collision_box.height,
+            };
+
+            const will_collide_with_floor = doesCollide(
+                entity_x1,
+                entity_y2 + velocity.dy,
+                entity_x2,
+                entity_y2 + velocity.dy,
+                other_collision_rect,
+            );
+
+            const will_collide_with_wall = doesCollide(
+                entity_x1 + velocity.dx,
+                entity_y1,
+                entity_x2 + velocity.dx,
+                entity_y2,
+                other_collision_rect,
+            );
+
+            if (will_collide_with_floor) {
+                position.y = other_collision_rect.y - other_collision_rect.height;
+                velocity.dy = 0;
+                touched_ground = true;
+            }
+
+            if (will_collide_with_wall) {
+                velocity.dx = 0;
+                touched_wall = true;
+            }
+
+            w.velocity_components[entityId] = velocity;
+            w.position_components[entityId] = position;
+        }
+
         for (scene.collision_boxes.items) |scene_collision_box| {
             if (has_edge_collision_box) |edge_collision_box| {
                 const did_collide = doesCollide(
