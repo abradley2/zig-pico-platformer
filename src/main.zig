@@ -79,8 +79,8 @@ pub fn main() anyerror!void {
         camera.zoom = zoom;
 
         system.playerControlsSystems(keyboard, scene, world);
-        system.runCollisionSystem(delta, scene, world);
         system.runGravitySystem(delta, world);
+        system.runCollisionSystem(delta, scene, world);
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);

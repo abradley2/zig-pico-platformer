@@ -96,37 +96,36 @@ pub fn runCollisionSystem(
                     on_edge = false;
                 }
             }
-            if (doesCollide(
+
+            const will_collide_with_floor = doesCollide(
                 entity_x1,
-                entity_y1,
+                entity_y2 + velocity.dy,
                 entity_x2,
+                entity_y2 + velocity.dy,
+                scene_collision_box,
+            );
+
+            const will_collide_with_wall = doesCollide(
+                entity_x1 + velocity.dx,
+                entity_y1,
+                entity_x2 + velocity.dx,
                 entity_y2,
                 scene_collision_box,
-            )) {
-                const is_floor = scene_collision_box.y > entity_y1;
-                const is_wall = is_floor == false;
+            );
 
-                if (is_floor) {
-                    position.y = scene_collision_box.y - scene_collision_box.height;
-                    velocity.dy = 0;
-                    touched_ground = true;
-                }
-
-                if (is_wall) {
-                    // need to check if it is a wall to the left or right first
-                    if (entity_x1 < scene_collision_box.x) {
-                        position.x = scene_collision_box.x - collision_box.width;
-                    } else {
-                        position.x = scene_collision_box.x + scene_collision_box.width;
-                    }
-                    velocity.dx = 0;
-                    touched_wall = true;
-                }
-
-                w.collision_box_components[entityId] = collision_box;
-                w.velocity_components[entityId] = velocity;
-                w.position_components[entityId] = position;
+            if (will_collide_with_floor) {
+                position.y = scene_collision_box.y - scene_collision_box.height;
+                velocity.dy = 0;
+                touched_ground = true;
             }
+
+            if (will_collide_with_wall) {
+                velocity.dx = 0;
+                touched_wall = true;
+            }
+
+            w.velocity_components[entityId] = velocity;
+            w.position_components[entityId] = position;
         }
         collision_box.on_edge = on_edge;
         collision_box.did_touch_ground = touched_ground;
