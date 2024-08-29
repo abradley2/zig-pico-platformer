@@ -65,18 +65,18 @@ pub fn runCollisionSystem(
             if (has_direction) |direction| {
                 if (direction == component.Direction.Left) {
                     has_edge_collision_box = rl.Rectangle{
-                        .x = entity_x1 - 3,
+                        .x = entity_x1 - 1,
                         .y = entity_y2 + 3,
                         .width = 1,
-                        .height = 2,
+                        .height = 100,
                     };
                 }
                 if (direction == component.Direction.Right) {
                     has_edge_collision_box = rl.Rectangle{
-                        .x = entity_x2 + 3,
+                        .x = entity_x2 + 1,
                         .y = entity_y2 + 3,
                         .width = 1,
-                        .height = 2,
+                        .height = 100,
                     };
                 }
             } else {

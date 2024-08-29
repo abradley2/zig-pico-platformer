@@ -298,6 +298,15 @@
                 }]
         }, 
         {
+         "id":173,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":175,
          "properties":[
                 {
@@ -317,6 +326,15 @@
         }, 
         {
          "id":177,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":178,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -361,7 +379,25 @@
                 }]
         }, 
         {
+         "id":203,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":204,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":205,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -379,7 +415,25 @@
                 }]
         }, 
         {
+         "id":208,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":209,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":210,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -415,6 +469,15 @@
                 }]
         }, 
         {
+         "id":237,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":239,
          "properties":[
                 {
@@ -434,6 +497,15 @@
         }, 
         {
          "id":241,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":242,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -469,6 +541,78 @@
                 }]
         }, 
         {
+         "id":266,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":267,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":268,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":269,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":271,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":272,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":273,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":274,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":288,
          "properties":[
                 {
@@ -488,6 +632,78 @@
         }, 
         {
          "id":290,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":298,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":299,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":300,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":301,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":303,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":304,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":305,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":306,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -523,6 +739,78 @@
                 }]
         }, 
         {
+         "id":330,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":331,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":332,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":333,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":335,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":336,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":337,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":338,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":352,
          "properties":[
                 {
@@ -542,6 +830,78 @@
         }, 
         {
          "id":354,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":362,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":363,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":364,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":365,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":367,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":368,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":369,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":370,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -604,6 +964,78 @@
                 }]
         }, 
         {
+         "id":394,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":395,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":396,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":397,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":399,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":400,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":401,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":402,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":416,
          "properties":[
                 {
@@ -653,6 +1085,78 @@
          "properties":[
                 {
                  "name":"is_player_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":426,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":427,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":428,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":429,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":431,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":432,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":433,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":434,
+         "properties":[
+                {
+                 "name":"is_collision_box",
                  "type":"bool",
                  "value":true
                 }]
@@ -712,6 +1216,78 @@
                 }]
         }, 
         {
+         "id":458,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":459,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":460,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":461,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":463,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":464,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":465,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":466,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":480,
          "properties":[
                 {
@@ -766,6 +1342,177 @@
                 }]
         }, 
         {
+         "id":490,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":491,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":492,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":493,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":495,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":496,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":497,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":498,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":522,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":523,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":524,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":525,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":527,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":528,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":529,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":530,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":555,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":556,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":557,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":558,
          "properties":[
                 {
@@ -785,6 +1532,33 @@
         }, 
         {
          "id":560,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":561,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":562,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":563,
          "properties":[
                 {
                  "name":"is_collision_box",
@@ -856,6 +1630,33 @@
                 }]
         }, 
         {
+         "id":587,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":588,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":589,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":590,
          "properties":[
                 {
@@ -883,6 +1684,60 @@
                 }]
         }, 
         {
+         "id":593,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":594,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":595,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":619,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":620,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":621,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":622,
          "properties":[
                 {
@@ -902,6 +1757,33 @@
         }, 
         {
          "id":624,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":625,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":626,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":627,
          "properties":[
                 {
                  "name":"is_collision_box",
