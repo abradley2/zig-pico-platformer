@@ -39,6 +39,11 @@ pub fn runEntityCollisionSystem(
         const position = has_position orelse continue;
         const collision_box = has_collision_box orelse continue;
 
+        // const entity_x1 = position.x + collision_box.x_offset;
+        // const entity_y1 = position.y + collision_box.y_offset;
+        // const entity_x2 = entity_x1 + collision_box.width;
+        // const entity_y2 = entity_y1 + collision_box.height;
+
         for (
             (entity_id + 1)..,
             world.position_components[entity_id + 1 ..],
@@ -159,8 +164,10 @@ pub fn runCollisionSystem(
             );
 
             if (will_collide_with_floor) {
-                position.y = other_collision_rect.y - other_collision_rect.height;
-                velocity.dy = -4;
+                if (velocity.dy > 0) {
+                    position.y = other_collision_rect.y - other_collision_rect.height - (other_collision_rect.y - other_position.y);
+                }
+                velocity.dy = 0;
                 touched_ground = true;
             }
 
@@ -204,9 +211,9 @@ pub fn runCollisionSystem(
             );
 
             if (will_collide_with_floor) {
-                if (velocity.dy > 0) {
-                    position.y = scene_collision_box.y - scene_collision_box.height;
-                }
+                // if (velocity.dy > 0) {
+                //     position.y = scene_collision_box.y - scene_collision_box.height;
+                // }
                 velocity.dy = 0;
                 touched_ground = true;
             }
