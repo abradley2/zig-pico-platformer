@@ -211,9 +211,9 @@ pub fn runCollisionSystem(
             );
 
             if (will_collide_with_floor) {
-                // if (velocity.dy > 0) {
-                //     position.y = scene_collision_box.y - scene_collision_box.height;
-                // }
+                if (velocity.dy > 0) {
+                    position.y = scene_collision_box.y - scene_collision_box.height;
+                }
                 velocity.dy = 0;
                 touched_ground = true;
             }
