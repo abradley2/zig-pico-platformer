@@ -2,9 +2,17 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
-pub const Direction = enum(u2) {
+pub const EntityCollision: type = struct {
+    entity_a: usize,
+    entity_b: usize,
+    atb_dir: Direction,
+};
+
+pub const Direction = enum(u4) {
     Left,
     Right,
+    Up,
+    Down,
 };
 
 pub const GroundedWander: type = struct {
