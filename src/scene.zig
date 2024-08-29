@@ -3,12 +3,30 @@ const World = @import("World.zig");
 const tiled = @import("tiled.zig");
 const entity = @import("entity.zig");
 const rl = @import("raylib");
+const component = @import("component.zig");
 
 pub const Scene = @This();
 
 allocator: std.mem.Allocator,
 player_entity_id: ?usize,
 collision_boxes: std.ArrayList(rl.Rectangle),
+entity_collisions: std.SinglyLinkedList(component.EntityCollision),
+
+pub fn addCollision(self: *Scene, entity_collision: component.EntityCollision) !void {
+    const node = try self.allocator.create(
+        std.SinglyLinkedList(component.EntityCollision).Node,
+    );
+    node.* = std.SinglyLinkedList(component.EntityCollision).Node{
+        .data = entity_collision,
+    };
+    self.entity_collisions.append(node);
+}
+
+pub fn clearCollisions(self: *Scene) void {
+    while (self.entity_collisions.popFirst()) |node| {
+        self.allocator.free(node);
+    }
+}
 
 pub fn init(
     allocator: std.mem.Allocator,
@@ -16,6 +34,8 @@ pub fn init(
     tile_map: tiled.TileMap,
     world: *World,
 ) !Scene {
+    const entity_collisions = std.SinglyLinkedList(component.EntityCollision){};
+
     var player_entity_id: ?usize = null;
     var collision_box_list = std.ArrayList(rl.Rectangle).init(allocator);
     for (tile_map.layers) |layer| {
@@ -69,6 +89,7 @@ pub fn init(
     }
 
     return Scene{
+        .entity_collisions = entity_collisions,
         .allocator = allocator,
         .player_entity_id = player_entity_id,
         .collision_boxes = collision_box_list,

@@ -68,7 +68,7 @@ pub fn runEntityCollisionSystem(
 
 pub fn runCollisionSystem(
     delta: f32,
-    scene: Scene,
+    scene: *Scene,
     w: World,
 ) void {
     for (

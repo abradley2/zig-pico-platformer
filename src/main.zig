@@ -40,7 +40,7 @@ pub fn main() anyerror!void {
     );
     defer tile_map.deinit();
 
-    const scene: Scene = try Scene.init(
+    var scene: Scene = try Scene.init(
         game_allocator.allocator(),
         texture_map,
         tile_map,
@@ -81,7 +81,7 @@ pub fn main() anyerror!void {
         system.playerControlsSystems(keyboard, scene, world);
         system.runGravitySystem(delta, world);
         system.runEntityCollisionSystem(delta, world);
-        system.runCollisionSystem(delta, scene, world);
+        system.runCollisionSystem(delta, &scene, world);
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);
