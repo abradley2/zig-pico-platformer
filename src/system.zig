@@ -70,7 +70,7 @@ pub fn runCollisionSystem(
     delta: f32,
     scene: *Scene,
     w: World,
-) void {
+) !void {
     for (
         0..,
         w.position_components,
@@ -169,11 +169,28 @@ pub fn runCollisionSystem(
                 }
                 velocity.dy = 0;
                 touched_ground = true;
+                try scene.addCollision(component.EntityCollision{
+                    .entity_a = entityId,
+                    .entity_b = other_entity_id,
+                    .atb_dir = if (velocity.dy > 0)
+                        component.Direction.Down
+                    else
+                        component.Direction.Up,
+                });
             }
 
             if (will_collide_with_wall) {
                 velocity.dx = 0;
                 touched_wall = true;
+                const atb_dir = if (velocity.dx > 0)
+                    component.Direction.Right
+                else
+                    component.Direction.Left;
+                try scene.addCollision(component.EntityCollision{
+                    .entity_a = entityId,
+                    .entity_b = other_entity_id,
+                    .atb_dir = atb_dir,
+                });
             }
 
             w.velocity_components[entityId] = velocity;

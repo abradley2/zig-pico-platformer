@@ -81,10 +81,12 @@ pub fn main() anyerror!void {
         system.playerControlsSystems(keyboard, scene, world);
         system.runGravitySystem(delta, world);
         system.runEntityCollisionSystem(delta, world);
-        system.runCollisionSystem(delta, &scene, world);
+        try system.runCollisionSystem(delta, &scene, world);
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);
+
+        scene.clearCollisions();
 
         rl.beginDrawing();
         defer rl.endDrawing();

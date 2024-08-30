@@ -19,12 +19,13 @@ pub fn addCollision(self: *Scene, entity_collision: component.EntityCollision) !
     node.* = std.SinglyLinkedList(component.EntityCollision).Node{
         .data = entity_collision,
     };
-    self.entity_collisions.append(node);
+    self.entity_collisions.prepend(node);
 }
 
 pub fn clearCollisions(self: *Scene) void {
+    std.debug.print("len: {}\n", .{self.entity_collisions.len()});
     while (self.entity_collisions.popFirst()) |node| {
-        self.allocator.free(node);
+        self.allocator.destroy(node);
     }
 }
 
