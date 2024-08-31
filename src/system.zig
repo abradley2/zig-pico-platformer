@@ -163,9 +163,9 @@ pub fn runCollisionSystem(
             if (will_collide_with_floor) {
                 if (velocity.dy > 0) {
                     position.y = other_collision_rect.y - other_collision_rect.height - (other_collision_rect.y - other_position.y);
+                    touched_ground = true;
                 }
                 velocity.dy = 0;
-                touched_ground = true;
                 try scene.addCollision(component.EntityCollision{
                     .entity_a = entityId,
                     .entity_b = other_entity_id,
@@ -227,9 +227,9 @@ pub fn runCollisionSystem(
             if (will_collide_with_floor) {
                 if (velocity.dy > 0) {
                     position.y = scene_collision_box.y - scene_collision_box.height;
+                    touched_ground = true;
                 }
                 velocity.dy = 0;
-                touched_ground = true;
             }
 
             if (will_collide_with_wall) {
