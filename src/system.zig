@@ -146,7 +146,7 @@ pub fn runCollisionSystem(
 
             const will_collide_with_floor = doesCollide(
                 entity_x1,
-                entity_y2 + (velocity.dy * delta),
+                entity_y1 + (velocity.dy * delta),
                 entity_x2,
                 entity_y2 + (velocity.dy * delta),
                 other_collision_rect,
