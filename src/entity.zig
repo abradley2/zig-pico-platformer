@@ -45,9 +45,9 @@ pub fn makePlayerEntity(
     };
     world.collision_box_components[player] = component.CollisionBox{
         .x_offset = 2,
-        .y_offset = 2,
+        .y_offset = 4,
         .width = 12,
-        .height = 14,
+        .height = 12,
         .did_touch_ground = false,
     };
 

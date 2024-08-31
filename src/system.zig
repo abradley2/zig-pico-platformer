@@ -6,21 +6,18 @@ const Keyboard = @import("Keyboard.zig");
 const component = @import("component.zig");
 
 fn doesCollide(
-    entity_x1: f32,
-    entity_y1: f32,
-    entity_x2: f32,
-    entity_y2: f32,
+    entity_top_left_x: f32,
+    entity_top_left_y: f32,
+    entity_bottom_right_x: f32,
+    entity_bottom_right_y: f32,
     collision_box: rl.Rectangle,
 ) bool {
-    const collision_x1 = collision_box.x;
-    const collision_y1 = collision_box.y;
-    const collision_x2 = collision_box.x + collision_box.width;
-    const collision_y2 = collision_box.y + collision_box.height;
+    const collision_top_left_x = collision_box.x;
+    const collision_top_left_y = collision_box.y;
+    const collision_bottom_right_x = collision_box.x + collision_box.width;
+    const collision_bottom_right_y = collision_box.y + collision_box.height;
 
-    return (entity_x1 < collision_x2 and
-        entity_x2 > collision_x1 and
-        entity_y1 < collision_y2 and
-        entity_y2 > collision_y1);
+    return (entity_top_left_x < collision_bottom_right_x and entity_bottom_right_x > collision_top_left_x and entity_top_left_y < collision_bottom_right_y and entity_bottom_right_y > collision_top_left_y);
 }
 
 pub fn runEntityCollisionSystem(
@@ -213,7 +210,7 @@ pub fn runCollisionSystem(
 
             const will_collide_with_floor = doesCollide(
                 entity_x1,
-                entity_y2 + (velocity.dy * delta),
+                entity_y1 + (velocity.dy * delta),
                 entity_x2,
                 entity_y2 + (velocity.dy * delta),
                 scene_collision_box,
@@ -254,20 +251,15 @@ pub fn runGravitySystem(delta: f32, w: World) void {
     for (
         0..,
         w.velocity_components,
-        w.collision_box_components,
     ) |
         entityId,
         has_velocity,
-        has_collision_box,
     | {
         var velocity = has_velocity orelse continue;
-        const collision_box = has_collision_box orelse continue;
 
-        if (collision_box.did_touch_ground == false) {
-            velocity.dy += (0.15 * delta);
+        velocity.dy += (0.15 * delta);
 
-            w.velocity_components[entityId] = velocity;
-        }
+        w.velocity_components[entityId] = velocity;
     }
 }
 
