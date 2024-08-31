@@ -2,6 +2,10 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub const Pressable: type = struct {
+    did_just_press: bool,
+};
+
 pub const EntityCollision: type = struct {
     entity_a: usize,
     entity_b: usize,

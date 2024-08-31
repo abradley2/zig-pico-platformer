@@ -8,6 +8,7 @@ const World = @This();
 active_ids: std.AutoHashMap(usize, bool),
 inactive_ids: std.AutoHashMap(usize, bool),
 
+pressable_components: []?component.Pressable,
 entity_collision_components: []?component.EntityCollision,
 direction_components: []?component.Direction,
 grounded_wander_components: []?component.GroundedWander,
@@ -19,6 +20,7 @@ velocity_components: []?component.Velocity,
 collision_box_components: []?component.CollisionBox,
 
 pub fn freeEntity(self: *World, entity_id: usize) void {
+    self.pressable_components[entity_id] = null;
     self.entity_collision_components[entity_id] = null;
     self.grounded_wander_components[entity_id] = null;
     self.direction_components[entity_id] = null;
@@ -45,6 +47,7 @@ pub fn createEntity(self: *World) error{OutOfMemory}!usize {
 }
 
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
+    const pressable_components = try allocator.alloc(?component.Pressable, max_entity_count);
     const entity_collision_components = try allocator.alloc(?component.EntityCollision, max_entity_count);
     const direction_components = try allocator.alloc(?component.Direction, max_entity_count);
     const grounded_wander_components = try allocator.alloc(?component.GroundedWander, max_entity_count);
@@ -55,6 +58,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const velocity_components = try allocator.alloc(?component.Velocity, max_entity_count);
     const collision_box_components = try allocator.alloc(?component.CollisionBox, max_entity_count);
 
+    initToNull(component.Pressable, pressable_components);
     initToNull(component.EntityCollision, entity_collision_components);
     initToNull(component.Direction, direction_components);
     initToNull(component.GroundedWander, grounded_wander_components);
@@ -75,6 +79,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     return World{
         .active_ids = active_ids,
         .inactive_ids = inactive_ids,
+        .pressable_components = pressable_components,
         .entity_collision_components = entity_collision_components,
         .direction_components = direction_components,
         .grounded_wander_components = grounded_wander_components,

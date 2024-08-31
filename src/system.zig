@@ -22,43 +22,25 @@ fn doesCollide(
 
 pub fn runEntityCollisionSystem(
     delta: f32,
+    scene: Scene,
     world: World,
 ) void {
-    for (
-        0..,
-        world.position_components,
-        world.collision_box_components,
-    ) |
-        entity_id,
-        has_position,
-        has_collision_box,
-    | {
-        const position = has_position orelse continue;
-        const collision_box = has_collision_box orelse continue;
+    const entity_collisions: std.SinglyLinkedList(component.EntityCollision) = scene.entity_collisions;
+    _ = delta;
+    _ = world;
+    var entity_collision_slot = entity_collisions.first;
+    while (entity_collision_slot) |entity_collision_node| {
+        defer entity_collision_slot = entity_collision_node.next;
 
-        // const entity_x1 = position.x + collision_box.x_offset;
-        // const entity_y1 = position.y + collision_box.y_offset;
-        // const entity_x2 = entity_x1 + collision_box.width;
-        // const entity_y2 = entity_y1 + collision_box.height;
+        const entity_collision = entity_collision_node.data;
 
-        for (
-            (entity_id + 1)..,
-            world.position_components[entity_id + 1 ..],
-            world.collision_box_components[entity_id + 1 ..],
-        ) |
-            other_entity_id,
-            other_has_position,
-            other_has_collision_box,
-        | {
-            const other_position = other_has_position orelse continue;
-            const other_collision_box = other_has_collision_box orelse continue;
-
-            _ = other_entity_id;
-            _ = delta;
-            _ = position;
-            _ = collision_box;
-            _ = other_position;
-            _ = other_collision_box;
+        if (scene.player_entity_id) |world_player_entity_id| {
+            if (entity_collision.entity_a == world_player_entity_id) {
+                std.debug.print(
+                    "The player collided with another entity --> {}\n",
+                    .{entity_collision.entity_b},
+                );
+            }
         }
     }
 }
