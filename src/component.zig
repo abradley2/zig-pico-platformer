@@ -2,7 +2,16 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub const BlockType = enum(u4) {
+    XBlock,
+    OBlock,
+};
+
+pub const IsBlock: type = BlockType;
+pub const IsToggleFor: type = BlockType;
+
 pub const Pressable: type = struct {
+    is_pressed: bool,
     did_just_press: bool,
 };
 
@@ -62,4 +71,5 @@ pub const CollisionBox: type = struct {
     did_touch_ground: bool = false,
     did_touch_wall: bool = false,
     on_edge: ?bool = null,
+    disable_collisions: bool = false,
 };

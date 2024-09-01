@@ -140,6 +140,13 @@ pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureM
         .height = 16,
         .did_touch_ground = false,
     };
+
+    world.pressable_components[x_button] = component.Pressable{
+        .is_pressed = false,
+        .did_just_press = false,
+    };
+
+    world.is_toggle_for_components[x_button] = component.BlockType.XBlock;
 }
 
 const x_block_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
@@ -161,7 +168,7 @@ pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMa
 
     world.animated_sprite_components[x_block] = component.AnimatedSprite{
         .texture = texture,
-        .animation_rects = x_block_inactive_animation,
+        .animation_rects = x_block_active_animation,
         .play_animation = null,
         .delta_per_frame = 60,
         .current_delta = 0,
@@ -175,4 +182,6 @@ pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMa
         .height = 16,
         .did_touch_ground = false,
     };
+
+    world.is_block_components[x_block] = component.BlockType.XBlock;
 }

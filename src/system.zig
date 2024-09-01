@@ -27,7 +27,6 @@ pub fn runEntityCollisionSystem(
 ) void {
     const entity_collisions: std.SinglyLinkedList(component.EntityCollision) = scene.entity_collisions;
     _ = delta;
-    _ = world;
     var entity_collision_slot = entity_collisions.first;
     while (entity_collision_slot) |entity_collision_node| {
         defer entity_collision_slot = entity_collision_node.next;
@@ -36,10 +35,18 @@ pub fn runEntityCollisionSystem(
 
         if (scene.player_entity_id) |world_player_entity_id| {
             if (entity_collision.entity_a == world_player_entity_id) {
-                std.debug.print(
-                    "The player collided with another entity --> {}\n",
-                    .{entity_collision.entity_b},
-                );
+                if (world.pressable_components[entity_collision.entity_b]) |_pressable| {
+                    var pressable = _pressable;
+                    if (world.is_toggle_for_components[entity_collision.entity_b]) |is_toggle_for| {
+                        const is_just_pressed = pressable.is_pressed == false;
+                        pressable.is_pressed = true;
+                        pressable.did_just_press = is_just_pressed;
+                        world.pressable_components[entity_collision.entity_b] = pressable;
+                        if (is_just_pressed) {
+                            std.debug.print("pressable entity {} toggled for entity {}\n", .{ pressable, is_toggle_for });
+                        }
+                    }
+                }
             }
         }
     }
