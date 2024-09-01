@@ -57,9 +57,6 @@ pub fn runEntityCollisionSystem(
                     pressable.did_just_press = is_just_pressed;
                     pressable.pressed_by = entity_collision.entity_a;
                     world.pressable_components[entity_collision.entity_b] = pressable;
-                    if (is_just_pressed) {
-                        std.debug.print("Entity {} is pressed by entity {}\n", .{ entity_collision.entity_b, entity_collision.entity_a });
-                    }
 
                     if (world.is_toggle_for_components[entity_collision.entity_b]) |is_toggle_for| {
                         switch (is_toggle_for) {
