@@ -20,6 +20,20 @@ fn doesCollide(
     return (entity_top_left_x < collision_bottom_right_x and entity_bottom_right_x > collision_top_left_x and entity_top_left_y < collision_bottom_right_y and entity_bottom_right_y > collision_top_left_y);
 }
 
+fn doesCollideRects(
+    entity_rect: rl.Rectangle,
+    collision_rect: rl.Rectangle,
+) bool {
+    return (entity_rect.x < collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width > collision_rect.x and entity_rect.y < collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height > collision_rect.y);
+}
+
+fn doesTouchRects(
+    entity_rect: rl.Rectangle,
+    collision_rect: rl.Rectangle,
+) bool {
+    return (entity_rect.x <= collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width >= collision_rect.x and entity_rect.y <= collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height >= collision_rect.y);
+}
+
 pub fn runEntityCollisionSystem(
     delta: f32,
     scene: Scene,
@@ -38,16 +52,62 @@ pub fn runEntityCollisionSystem(
                 if (world.pressable_components[entity_collision.entity_b]) |_pressable| {
                     var pressable = _pressable;
                     if (world.is_toggle_for_components[entity_collision.entity_b]) |is_toggle_for| {
+                        _ = is_toggle_for;
                         const is_just_pressed = pressable.is_pressed == false;
                         pressable.is_pressed = true;
                         pressable.did_just_press = is_just_pressed;
+                        pressable.pressed_by = entity_collision.entity_a;
                         world.pressable_components[entity_collision.entity_b] = pressable;
                         if (is_just_pressed) {
-                            std.debug.print("pressable entity {} toggled for entity {}\n", .{ pressable, is_toggle_for });
+                            std.debug.print("Entity {} has pressed entity {}\n", .{ entity_collision.entity_a, entity_collision.entity_b });
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+pub fn runPressableReleaseCheck(
+    delta: f32,
+    world: World,
+) void {
+    for (
+        0..,
+        world.pressable_components,
+        world.position_components,
+        world.collision_box_components,
+    ) |entity_id_b, has_pressable, has_position, has_collision_box| {
+        var pressable = has_pressable orelse continue;
+        const position = has_position orelse continue;
+        const collision_box = has_collision_box orelse continue;
+        const entity_id_a = pressable.pressed_by orelse continue;
+
+        const entity_a_position = world.position_components[entity_id_a] orelse continue;
+        const entity_a_collision_box = world.collision_box_components[entity_id_a] orelse continue;
+        const entity_a_velocity = world.velocity_components[entity_id_a] orelse continue;
+
+        const does_collide = doesTouchRects(
+            rl.Rectangle{
+                .x = entity_a_position.x + entity_a_collision_box.x_offset + (entity_a_velocity.dx * delta),
+                .y = entity_a_position.y + entity_a_collision_box.y_offset + (entity_a_velocity.dy * delta),
+                .width = entity_a_collision_box.width,
+                .height = entity_a_collision_box.height,
+            },
+            rl.Rectangle{
+                .x = position.x + collision_box.x_offset,
+                .y = position.y + collision_box.y_offset,
+                .width = collision_box.width,
+                .height = collision_box.height,
+            },
+        );
+
+        if (does_collide == false) {
+            std.debug.print("Entity {} no longer touches entity {}\n", .{ entity_id_a, entity_id_b });
+            pressable.is_pressed = false;
+            pressable.did_just_press = false;
+            pressable.pressed_by = null;
+            world.pressable_components[entity_id_b] = pressable;
         }
     }
 }

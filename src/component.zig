@@ -11,6 +11,7 @@ pub const IsBlock: type = BlockType;
 pub const IsToggleFor: type = BlockType;
 
 pub const Pressable: type = struct {
+    pressed_by: ?usize = null,
     is_pressed: bool,
     did_just_press: bool,
 };
