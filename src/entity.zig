@@ -149,11 +149,11 @@ pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureM
     world.is_toggle_for_components[x_button] = component.BlockType.XBlock;
 }
 
-const x_block_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+pub const x_block_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
     rl.Rectangle{ .x = 160, .y = 32, .width = 16, .height = 16 },
 });
 
-const x_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+pub const x_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
     rl.Rectangle{ .x = 160, .y = 48, .width = 16, .height = 16 },
 });
 
@@ -184,4 +184,100 @@ pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMa
     };
 
     world.is_block_components[x_block] = component.BlockType.XBlock;
+}
+
+pub const o_button_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 128, .y = 0, .width = 16, .height = 16 },
+});
+
+pub const o_button_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 128, .y = 16, .width = 16, .height = 16 },
+});
+
+pub fn makeOButtonEntity(
+    start_x: f32,
+    start_y: f32,
+    texture_map: tiled.TextureMap,
+    world: *World,
+) !void {
+    const o_button = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.position_components[o_button] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+
+    world.animated_sprite_components[o_button] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = o_button_inactive_animation,
+        .play_animation = null,
+        .delta_per_frame = 60,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+
+    world.collision_box_components[o_button] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
+        .width = 16,
+        .height = 16,
+        .did_touch_ground = false,
+    };
+
+    world.pressable_components[o_button] = component.Pressable{
+        .is_pressed = false,
+        .did_just_press = false,
+    };
+
+    world.is_toggle_for_components[o_button] = component.BlockType.OBlock;
+}
+
+pub const o_block_active_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 128, .y = 32, .width = 16, .height = 16 },
+});
+
+pub const o_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
+    rl.Rectangle{ .x = 128, .y = 48, .width = 16, .height = 16 },
+});
+
+pub fn makeOBlockEntity(
+    start_x: f32,
+    start_y: f32,
+    texture_map: tiled.TextureMap,
+    world: *World,
+) !void {
+    const o_block = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.position_components[o_block] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+
+    world.animated_sprite_components[o_block] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = o_block_active_animation,
+        .play_animation = null,
+        .delta_per_frame = 60,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+
+    world.collision_box_components[o_block] = component.CollisionBox{
+        .x_offset = 0,
+        .y_offset = 0,
+        .width = 16,
+        .height = 16,
+        .did_touch_ground = false,
+    };
+
+    world.is_block_components[o_block] = component.BlockType.OBlock;
+}
+
+pub fn isSameAnimationRect(
+    a: rl.Rectangle,
+    b: rl.Rectangle,
+) bool {
+    return a.x == b.x and a.y == b.y;
 }

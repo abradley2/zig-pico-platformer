@@ -4,6 +4,7 @@ const Scene = @import("Scene.zig");
 const rl = @import("raylib");
 const Keyboard = @import("Keyboard.zig");
 const component = @import("component.zig");
+const entity = @import("entity.zig");
 
 fn doesCollide(
     entity_top_left_x: f32,
@@ -51,15 +52,81 @@ pub fn runEntityCollisionSystem(
             if (entity_collision.entity_a == world_player_entity_id) {
                 if (world.pressable_components[entity_collision.entity_b]) |_pressable| {
                     var pressable = _pressable;
+                    const is_just_pressed = pressable.is_pressed == false;
+                    pressable.is_pressed = true;
+                    pressable.did_just_press = is_just_pressed;
+                    pressable.pressed_by = entity_collision.entity_a;
+                    world.pressable_components[entity_collision.entity_b] = pressable;
+                    if (is_just_pressed) {
+                        std.debug.print("Entity {} is pressed by entity {}\n", .{ entity_collision.entity_b, entity_collision.entity_a });
+                    }
+
                     if (world.is_toggle_for_components[entity_collision.entity_b]) |is_toggle_for| {
-                        _ = is_toggle_for;
-                        const is_just_pressed = pressable.is_pressed == false;
-                        pressable.is_pressed = true;
-                        pressable.did_just_press = is_just_pressed;
-                        pressable.pressed_by = entity_collision.entity_a;
-                        world.pressable_components[entity_collision.entity_b] = pressable;
-                        if (is_just_pressed) {
-                            std.debug.print("Entity {} has pressed entity {}\n", .{ entity_collision.entity_a, entity_collision.entity_b });
+                        switch (is_toggle_for) {
+                            component.BlockType.XBlock => {
+                                for (
+                                    0..,
+                                    world.is_block_components,
+                                    world.animated_sprite_components,
+                                    world.collision_box_components,
+                                ) |
+                                    block_id,
+                                    has_block_type,
+                                    has_block_sprite,
+                                    has_collision_box,
+                                | {
+                                    if (is_just_pressed == false) continue;
+                                    const block_type = has_block_type orelse continue;
+                                    const block_sprite = has_block_sprite orelse continue;
+                                    var block_collision_box = has_collision_box orelse continue;
+
+                                    if (block_type == component.BlockType.XBlock) {
+                                        var sprite = block_sprite;
+                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.x_block_active_animation.@"0"[0])) {
+                                            sprite.animation_rects = entity.x_block_inactive_animation;
+                                            block_collision_box.disable_collisions = true;
+                                            world.collision_box_components[block_id] = block_collision_box;
+                                        } else {
+                                            sprite.animation_rects = entity.x_block_active_animation;
+                                            block_collision_box.disable_collisions = false;
+                                            world.collision_box_components[block_id] = block_collision_box;
+                                        }
+                                        world.animated_sprite_components[block_id] = sprite;
+                                    }
+                                }
+                            },
+                            component.BlockType.OBlock => {
+                                for (
+                                    0..,
+                                    world.is_block_components,
+                                    world.animated_sprite_components,
+                                    world.collision_box_components,
+                                ) |
+                                    block_id,
+                                    has_block_type,
+                                    has_block_sprite,
+                                    has_collision_box,
+                                | {
+                                    if (is_just_pressed == false) continue;
+                                    const block_type = has_block_type orelse continue;
+                                    const block_sprite = has_block_sprite orelse continue;
+                                    var block_collision_box = has_collision_box orelse continue;
+
+                                    if (block_type == component.BlockType.XBlock) {
+                                        var sprite = block_sprite;
+                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.x_block_active_animation.@"0"[0])) {
+                                            sprite.animation_rects = entity.x_block_inactive_animation;
+                                            block_collision_box.disable_collisions = true;
+                                            world.collision_box_components[block_id] = block_collision_box;
+                                        } else {
+                                            sprite.animation_rects = entity.x_block_active_animation;
+                                            block_collision_box.disable_collisions = false;
+                                            world.collision_box_components[block_id] = block_collision_box;
+                                        }
+                                        world.animated_sprite_components[block_id] = sprite;
+                                    }
+                                }
+                            },
                         }
                     }
                 }
@@ -134,6 +201,10 @@ pub fn runCollisionSystem(
         var collision_box = has_collision_box orelse continue;
         var velocity = has_velocity orelse continue;
 
+        if (collision_box.disable_collisions) {
+            continue;
+        }
+
         const entity_x1 = position.x + collision_box.x_offset;
         const entity_y1 = position.y + collision_box.y_offset;
         const entity_x2 = entity_x1 + collision_box.width;
@@ -192,6 +263,10 @@ pub fn runCollisionSystem(
                 .width = other_collision_box.width,
                 .height = other_collision_box.height,
             };
+
+            if (other_collision_box.disable_collisions) {
+                continue;
+            }
 
             const will_collide_with_floor = doesCollide(
                 entity_x1,
