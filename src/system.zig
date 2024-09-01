@@ -218,7 +218,6 @@ pub fn runCollisionSystem(
         // TODO: I broke this somehow
         if (collision_box.did_touch_ground) {
             on_edge = true;
-            std.debug.print("CHECK EDGE DETECTION\n", .{});
             if (has_direction) |direction| {
                 if (direction == component.Direction.Left) {
                     has_edge_collision_box = rl.Rectangle{
@@ -310,6 +309,19 @@ pub fn runCollisionSystem(
                     .entity_b = other_entity_id,
                     .atb_dir = atb_dir,
                 });
+            }
+
+            if (has_edge_collision_box) |edge_collision_box| {
+                const did_collide = doesCollide(
+                    edge_collision_box.x,
+                    edge_collision_box.y,
+                    edge_collision_box.x + edge_collision_box.width,
+                    edge_collision_box.y + edge_collision_box.height,
+                    other_collision_rect,
+                );
+                if (did_collide) {
+                    on_edge = false;
+                }
             }
 
             w.velocity_components[entityId] = velocity;
