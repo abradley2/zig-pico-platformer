@@ -215,8 +215,10 @@ pub fn runCollisionSystem(
         // the left or right and slightly below of the entity. If it _doesn't_ collide with
         // anything, then we know it is on the ledge. Therefore we will set the on_edge flag
         // to true by default, and set it to false once we detect a collision.
-        if (velocity.dy == 0) {
+        // TODO: I broke this somehow
+        if (collision_box.did_touch_ground) {
             on_edge = true;
+            std.debug.print("CHECK EDGE DETECTION\n", .{});
             if (has_direction) |direction| {
                 if (direction == component.Direction.Left) {
                     has_edge_collision_box = rl.Rectangle{
