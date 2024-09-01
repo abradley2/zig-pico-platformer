@@ -49,7 +49,7 @@ pub fn runEntityCollisionSystem(
         const entity_collision = entity_collision_node.data;
 
         if (scene.player_entity_id) |world_player_entity_id| {
-            if (entity_collision.entity_a == world_player_entity_id) {
+            if (entity_collision.entity_a == world_player_entity_id and (entity_collision.atb_dir == component.Direction.Down or entity_collision.atb_dir == component.Direction.Up)) {
                 if (world.pressable_components[entity_collision.entity_b]) |_pressable| {
                     var pressable = _pressable;
                     const is_just_pressed = pressable.is_pressed == false;
