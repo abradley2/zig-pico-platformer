@@ -85,6 +85,20 @@ pub fn init(
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
                     _ = try entity.makeXBlockEntity(start_x, start_y, texture_map, world);
                 }
+
+                const is_o_block_spawn = try tiled.CustomProperty.getIsOBlockSpawn(custom_properties);
+                if (is_o_block_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeOBlockEntity(start_x, start_y, texture_map, world);
+                }
+
+                const is_o_button_spawn = try tiled.CustomProperty.getIsOButtonSpawn(custom_properties);
+                if (is_o_button_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeOButtonEntity(start_x, start_y, texture_map, world);
+                }
             }
         }
     }

@@ -109,14 +109,14 @@ pub fn runEntityCollisionSystem(
                                     const block_sprite = has_block_sprite orelse continue;
                                     var block_collision_box = has_collision_box orelse continue;
 
-                                    if (block_type == component.BlockType.XBlock) {
+                                    if (block_type == component.BlockType.OBlock) {
                                         var sprite = block_sprite;
-                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.x_block_active_animation.@"0"[0])) {
-                                            sprite.animation_rects = entity.x_block_inactive_animation;
+                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.o_block_active_animation.@"0"[0])) {
+                                            sprite.animation_rects = entity.o_block_inactive_animation;
                                             block_collision_box.disable_collisions = true;
                                             world.collision_box_components[block_id] = block_collision_box;
                                         } else {
-                                            sprite.animation_rects = entity.x_block_active_animation;
+                                            sprite.animation_rects = entity.o_block_active_animation;
                                             block_collision_box.disable_collisions = false;
                                             world.collision_box_components[block_id] = block_collision_box;
                                         }
