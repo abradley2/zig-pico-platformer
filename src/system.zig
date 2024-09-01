@@ -167,7 +167,6 @@ pub fn runPressableReleaseCheck(
         );
 
         if (does_collide == false) {
-            std.debug.print("Entity {} no longer touches entity {}\n", .{ entity_id_a, entity_id_b });
             pressable.is_pressed = false;
             pressable.did_just_press = false;
             pressable.pressed_by = null;
