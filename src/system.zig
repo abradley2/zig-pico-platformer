@@ -286,6 +286,9 @@ pub fn runCollisionSystem(
                     position.y = other_collision_rect.y - other_collision_rect.height - (other_collision_rect.y - other_position.y);
                     touched_ground = true;
                 }
+                if (velocity.dy < 0) {
+                    position.y = other_collision_rect.y + other_collision_rect.height - collision_box.y_offset;
+                }
                 velocity.dy = 0;
                 try scene.addCollision(component.EntityCollision{
                     .entity_a = entityId,
@@ -362,6 +365,9 @@ pub fn runCollisionSystem(
                 if (velocity.dy > 0) {
                     position.y = scene_collision_box.y - scene_collision_box.height;
                     touched_ground = true;
+                }
+                if (velocity.dy < 0) {
+                    position.y = scene_collision_box.y + scene_collision_box.height - collision_box.y_offset;
                 }
                 velocity.dy = 0;
             }
