@@ -2,3 +2,4 @@
 .zig-cache/
 *.tiled-project
 *.tiled-session
+zig-out/

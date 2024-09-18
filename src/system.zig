@@ -281,7 +281,7 @@ pub fn runCollisionSystem(
                 other_collision_rect,
             );
 
-            if (will_collide_with_floor) {
+            if (will_collide_with_floor and entity_y2 != other_collision_rect.y + other_collision_rect.height) {
                 if (velocity.dy > 0) {
                     position.y = other_collision_rect.y - other_collision_rect.height - (other_collision_rect.y - other_position.y);
                     touched_ground = true;

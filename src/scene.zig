@@ -7,6 +7,8 @@ const component = @import("component.zig");
 
 pub const Scene = @This();
 
+dialogue_text: ?usize = null,
+
 allocator: std.mem.Allocator,
 player_entity_id: ?usize,
 collision_boxes: std.ArrayList(rl.Rectangle),
