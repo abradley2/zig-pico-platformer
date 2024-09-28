@@ -12,22 +12,12 @@ dialogue_text: ?usize = null,
 allocator: std.mem.Allocator,
 player_entity_id: ?usize,
 collision_boxes: std.ArrayList(rl.Rectangle),
-entity_collisions: std.SinglyLinkedList(component.EntityCollision),
+
+entity_collisions_hash: std.AutoHashMap(component.EntityCollision, bool),
+prev_entity_collisions_hash: std.AutoHashMap(component.EntityCollision, bool),
 
 pub fn addCollision(self: *Scene, entity_collision: component.EntityCollision) !void {
-    const node = try self.allocator.create(
-        std.SinglyLinkedList(component.EntityCollision).Node,
-    );
-    node.* = std.SinglyLinkedList(component.EntityCollision).Node{
-        .data = entity_collision,
-    };
-    self.entity_collisions.prepend(node);
-}
-
-pub fn clearCollisions(self: *Scene) void {
-    while (self.entity_collisions.popFirst()) |node| {
-        self.allocator.destroy(node);
-    }
+    try self.entity_collisions_hash.put(entity_collision, true);
 }
 
 pub fn init(
@@ -36,8 +26,6 @@ pub fn init(
     tile_map: tiled.TileMap,
     world: *World,
 ) !Scene {
-    const entity_collisions = std.SinglyLinkedList(component.EntityCollision){};
-
     var player_entity_id: ?usize = null;
     var collision_box_list = std.ArrayList(rl.Rectangle).init(allocator);
     for (tile_map.layers) |layer| {
@@ -78,7 +66,6 @@ pub fn init(
                     const start_x = @as(f32, @floatFromInt(tile_map.tile_width * tile.tile_map_column));
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height * tile.tile_map_row));
                     _ = try entity.makeXButtonEntity(start_x, start_y, texture_map, world);
-                    std.debug.print("Spawn rect at: {}, {}\n", .{ start_x, start_y });
                 }
 
                 const is_x_block_spawn = try tiled.CustomProperty.getIsXBlockSpawn(custom_properties);
@@ -105,10 +92,86 @@ pub fn init(
         }
     }
 
+    const entity_collisions_hash = std.AutoHashMap(component.EntityCollision, bool).init(allocator);
+    const prev_entity_collisions_hash = std.AutoHashMap(component.EntityCollision, bool).init(allocator);
+
     return Scene{
-        .entity_collisions = entity_collisions,
+        .prev_entity_collisions_hash = prev_entity_collisions_hash,
+        .entity_collisions_hash = entity_collisions_hash,
         .allocator = allocator,
         .player_entity_id = player_entity_id,
         .collision_boxes = collision_box_list,
     };
+}
+
+test "newCollision memory" {
+    const test_allocator = std.testing.allocator;
+
+    var prev_collisions = std.AutoHashMap(component.EntityCollision, bool)
+        .init(test_allocator);
+
+    var current_collisions = std.AutoHashMap(component.EntityCollision, bool)
+        .init(test_allocator);
+
+    const entity_collision = component.EntityCollision{
+        .entity_a = 0,
+        .entity_b = 1,
+        .atb_dir = component.Direction.Left,
+    };
+
+    try current_collisions.put(
+        entity_collision,
+        true,
+    );
+
+    try advanceCollisions(
+        test_allocator,
+        &prev_collisions,
+        &current_collisions,
+    );
+
+    var prev_iter = prev_collisions.iterator();
+    const moved_collision = prev_iter.next().?;
+
+    try std.testing.expect(
+        moved_collision.key_ptr.entity_b == entity_collision.entity_b,
+    );
+
+    try advanceCollisions(
+        test_allocator,
+        &prev_collisions,
+        &current_collisions,
+    );
+
+    try std.testing.expectEqual(
+        0,
+        prev_collisions.count(),
+    );
+
+    try std.testing.expectEqual(
+        0,
+        current_collisions.count(),
+    );
+
+    current_collisions.deinit();
+    prev_collisions.deinit();
+}
+
+pub fn advanceCollisions(
+    self: *Scene,
+) !void {
+    const allocator = self.allocator;
+    const prev_collisions = &self.prev_entity_collisions_hash;
+    const current_collisions = &self.entity_collisions_hash;
+
+    var prev_iter = prev_collisions.iterator();
+    while (prev_iter.next()) |entry| {
+        prev_collisions.removeByPtr(entry.key_ptr);
+    }
+
+    var current_iter = current_collisions.iterator();
+    while (current_iter.next()) |entry| {
+        try prev_collisions.unmanaged.put(allocator, entry.key_ptr.*, true);
+        _ = current_collisions.remove(entry.key_ptr.*);
+    }
 }

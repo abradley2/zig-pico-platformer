@@ -28,11 +28,72 @@ fn doesCollideRects(
     return (entity_rect.x < collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width > collision_rect.x and entity_rect.y < collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height > collision_rect.y);
 }
 
-fn doesTouchRects(
-    entity_rect: rl.Rectangle,
-    collision_rect: rl.Rectangle,
-) bool {
-    return (entity_rect.x <= collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width >= collision_rect.x and entity_rect.y <= collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height >= collision_rect.y);
+fn toggleXBlocks(
+    world: World,
+) void {
+    for (
+        0..,
+        world.is_block_components,
+        world.animated_sprite_components,
+        world.collision_box_components,
+    ) |
+        block_id,
+        has_block_type,
+        has_block_sprite,
+        has_collision_box,
+    | {
+        const block_type = has_block_type orelse continue;
+        const block_sprite = has_block_sprite orelse continue;
+        var block_collision_box = has_collision_box orelse continue;
+
+        if (block_type == component.BlockType.XBlock) {
+            var sprite = block_sprite;
+            if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.x_block_active_animation.@"0"[0])) {
+                sprite.animation_rects = entity.x_block_inactive_animation;
+                block_collision_box.disable_collisions = true;
+                world.collision_box_components[block_id] = block_collision_box;
+            } else {
+                sprite.animation_rects = entity.x_block_active_animation;
+                block_collision_box.disable_collisions = false;
+                world.collision_box_components[block_id] = block_collision_box;
+            }
+            world.animated_sprite_components[block_id] = sprite;
+        }
+    }
+}
+
+pub fn toggleOBlocks(
+    world: World,
+) void {
+    for (
+        0..,
+        world.is_block_components,
+        world.animated_sprite_components,
+        world.collision_box_components,
+    ) |
+        block_id,
+        has_block_type,
+        has_block_sprite,
+        has_collision_box,
+    | {
+        const block_type = has_block_type orelse continue;
+        const block_sprite = has_block_sprite orelse continue;
+        var block_collision_box = has_collision_box orelse continue;
+
+        if (block_type == component.BlockType.OBlock) {
+            var sprite = block_sprite;
+            if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.o_block_active_animation.@"0"[0])) {
+                sprite.animation_rects = entity.o_block_inactive_animation;
+                block_collision_box.disable_collisions = true;
+                world.collision_box_components[block_id] = block_collision_box;
+            } else {
+                sprite.animation_rects = entity.o_block_active_animation;
+                block_collision_box.disable_collisions = false;
+                world.collision_box_components[block_id] = block_collision_box;
+            }
+            world.animated_sprite_components[block_id] = sprite;
+        }
+    }
 }
 
 pub fn runEntityCollisionSystem(
@@ -40,137 +101,41 @@ pub fn runEntityCollisionSystem(
     scene: Scene,
     world: World,
 ) void {
-    const entity_collisions: std.SinglyLinkedList(component.EntityCollision) = scene.entity_collisions;
     _ = delta;
-    var entity_collision_slot = entity_collisions.first;
-    while (entity_collision_slot) |entity_collision_node| {
-        defer entity_collision_slot = entity_collision_node.next;
 
-        const entity_collision = entity_collision_node.data;
+    // handle new collisions
+    var new_collisions_iterator = scene.entity_collisions_hash.iterator();
+    while (new_collisions_iterator.next()) |new_collisions_entry| {
+        const entity_collision = new_collisions_entry.key_ptr.*;
+        // new collisions are not present in prev_collisions hash
+        if (scene.prev_entity_collisions_hash.get(new_collisions_entry.key_ptr.*) != null) {
+            continue;
+        }
 
-        if (scene.player_entity_id) |world_player_entity_id| {
-            if (entity_collision.entity_a == world_player_entity_id and (entity_collision.atb_dir == component.Direction.Down or entity_collision.atb_dir == component.Direction.Up)) {
-                if (world.pressable_components[entity_collision.entity_b]) |_pressable| {
-                    var pressable = _pressable;
-                    const is_just_pressed = pressable.is_pressed == false;
-                    pressable.is_pressed = true;
-                    pressable.did_just_press = is_just_pressed;
-                    pressable.pressed_by = entity_collision.entity_a;
-                    world.pressable_components[entity_collision.entity_b] = pressable;
+        const entity_a_is_player = if (scene.player_entity_id) |player_entity_id|
+            entity_collision.entity_a == player_entity_id
+        else
+            false;
 
-                    if (world.is_toggle_for_components[entity_collision.entity_b]) |is_toggle_for| {
-                        switch (is_toggle_for) {
-                            component.BlockType.XBlock => {
-                                for (
-                                    0..,
-                                    world.is_block_components,
-                                    world.animated_sprite_components,
-                                    world.collision_box_components,
-                                ) |
-                                    block_id,
-                                    has_block_type,
-                                    has_block_sprite,
-                                    has_collision_box,
-                                | {
-                                    if (is_just_pressed == false) continue;
-                                    const block_type = has_block_type orelse continue;
-                                    const block_sprite = has_block_sprite orelse continue;
-                                    var block_collision_box = has_collision_box orelse continue;
+        check_o_blocks: {
+            const toggle_for = world.is_toggle_for_components[entity_collision.entity_b] orelse break :check_o_blocks;
 
-                                    if (block_type == component.BlockType.XBlock) {
-                                        var sprite = block_sprite;
-                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.x_block_active_animation.@"0"[0])) {
-                                            sprite.animation_rects = entity.x_block_inactive_animation;
-                                            block_collision_box.disable_collisions = true;
-                                            world.collision_box_components[block_id] = block_collision_box;
-                                        } else {
-                                            sprite.animation_rects = entity.x_block_active_animation;
-                                            block_collision_box.disable_collisions = false;
-                                            world.collision_box_components[block_id] = block_collision_box;
-                                        }
-                                        world.animated_sprite_components[block_id] = sprite;
-                                    }
-                                }
-                            },
-                            component.BlockType.OBlock => {
-                                for (
-                                    0..,
-                                    world.is_block_components,
-                                    world.animated_sprite_components,
-                                    world.collision_box_components,
-                                ) |
-                                    block_id,
-                                    has_block_type,
-                                    has_block_sprite,
-                                    has_collision_box,
-                                | {
-                                    if (is_just_pressed == false) continue;
-                                    const block_type = has_block_type orelse continue;
-                                    const block_sprite = has_block_sprite orelse continue;
-                                    var block_collision_box = has_collision_box orelse continue;
-
-                                    if (block_type == component.BlockType.OBlock) {
-                                        var sprite = block_sprite;
-                                        if (entity.isSameAnimationRect(sprite.animation_rects.@"0"[0], entity.o_block_active_animation.@"0"[0])) {
-                                            sprite.animation_rects = entity.o_block_inactive_animation;
-                                            block_collision_box.disable_collisions = true;
-                                            world.collision_box_components[block_id] = block_collision_box;
-                                        } else {
-                                            sprite.animation_rects = entity.o_block_active_animation;
-                                            block_collision_box.disable_collisions = false;
-                                            world.collision_box_components[block_id] = block_collision_box;
-                                        }
-                                        world.animated_sprite_components[block_id] = sprite;
-                                    }
-                                }
-                            },
-                        }
-                    }
-                }
+            if (entity_a_is_player and
+                toggle_for == component.BlockType.OBlock and
+                entity_collision.atb_dir == component.Direction.Up)
+            {
+                toggleOBlocks(world);
             }
         }
-    }
-}
 
-pub fn runPressableReleaseCheck(
-    delta: f32,
-    world: World,
-) void {
-    for (
-        0..,
-        world.pressable_components,
-        world.position_components,
-        world.collision_box_components,
-    ) |entity_id_b, has_pressable, has_position, has_collision_box| {
-        var pressable = has_pressable orelse continue;
-        const position = has_position orelse continue;
-        const collision_box = has_collision_box orelse continue;
-        const entity_id_a = pressable.pressed_by orelse continue;
+        check_x_blocks: {
+            const toggle_for = world.is_toggle_for_components[entity_collision.entity_b] orelse break :check_x_blocks;
 
-        const entity_a_position = world.position_components[entity_id_a] orelse continue;
-        const entity_a_collision_box = world.collision_box_components[entity_id_a] orelse continue;
-        const entity_a_velocity = world.velocity_components[entity_id_a] orelse continue;
-
-        const does_collide = doesTouchRects(
-            rl.Rectangle{
-                .x = entity_a_position.x + entity_a_collision_box.x_offset + (entity_a_velocity.dx * delta),
-                .y = entity_a_position.y + entity_a_collision_box.y_offset + (entity_a_velocity.dy * delta),
-                .width = entity_a_collision_box.width,
-                .height = entity_a_collision_box.height,
-            },
-            rl.Rectangle{
-                .x = position.x + collision_box.x_offset,
-                .y = position.y + collision_box.y_offset,
-                .width = collision_box.width,
-                .height = collision_box.height,
-            },
-        );
-
-        if (does_collide == false) {
-            pressable.is_pressed = false;
-            pressable.did_just_press = false;
-            pressable.pressed_by = null;
-            world.pressable_components[entity_id_b] = pressable;
+            if (entity_a_is_player and toggle_for == component.BlockType.XBlock and
+                entity_collision.atb_dir == component.Direction.Up)
+            {
+                toggleXBlocks(world);
+            }
         }
     }
 }
@@ -211,11 +176,7 @@ pub fn runCollisionSystem(
         var on_edge: ?bool = null;
 
         var has_edge_collision_box: ?rl.Rectangle = null;
-        // in order to detect if something is on a ledge, we put a collision box slightly to
-        // the left or right and slightly below of the entity. If it _doesn't_ collide with
-        // anything, then we know it is on the ledge. Therefore we will set the on_edge flag
-        // to true by default, and set it to false once we detect a collision.
-        // TODO: I broke this somehow
+
         if (collision_box.did_touch_ground) {
             on_edge = true;
             if (has_direction) |direction| {
@@ -404,17 +365,14 @@ pub fn runGravitySystem(delta: f32, w: World) void {
 }
 
 pub fn runMovementSystem(delta: f32, w: World) void {
-    for (0.., w.velocity_components, w.position_components, w.collision_box_components) |
+    for (0.., w.velocity_components, w.position_components) |
         entityId,
         has_velocity,
         has_position,
-        has_collision,
     | {
         const velocity = has_velocity orelse continue;
         var position = has_position orelse continue;
 
-        _ = has_collision;
-        // TODO: only allow movement if not colliding with anything that is contrary to movement
         position.x += (velocity.dx * delta);
         position.y += (velocity.dy * delta);
 
