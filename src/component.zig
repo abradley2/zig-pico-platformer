@@ -18,12 +18,6 @@ pub const BlockType = enum(u4) {
 pub const IsBlock: type = BlockType;
 pub const IsToggleFor: type = BlockType;
 
-pub const Pressable: type = struct {
-    pressed_by: ?usize = null,
-    is_pressed: bool,
-    did_just_press: bool,
-};
-
 pub const EntityCollision: type = struct {
     entity_a: usize,
     entity_b: usize,

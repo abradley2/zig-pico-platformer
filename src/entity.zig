@@ -141,11 +141,6 @@ pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureM
         .did_touch_ground = false,
     };
 
-    world.pressable_components[x_button] = component.Pressable{
-        .is_pressed = false,
-        .did_just_press = false,
-    };
-
     world.is_toggle_for_components[x_button] = component.BlockType.XBlock;
 }
 
@@ -223,11 +218,6 @@ pub fn makeOButtonEntity(
         .width = 16,
         .height = 16,
         .did_touch_ground = false,
-    };
-
-    world.pressable_components[o_button] = component.Pressable{
-        .is_pressed = false,
-        .did_just_press = false,
     };
 
     world.is_toggle_for_components[o_button] = component.BlockType.OBlock;
