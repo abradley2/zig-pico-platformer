@@ -250,7 +250,6 @@ pub fn runCollisionSystem(
                 if (velocity.dy < 0) {
                     position.y = other_collision_rect.y + other_collision_rect.height - collision_box.y_offset;
                 }
-                velocity.dy = 0;
                 try scene.addCollision(component.EntityCollision{
                     .entity_a = entityId,
                     .entity_b = other_entity_id,
@@ -259,6 +258,7 @@ pub fn runCollisionSystem(
                     else
                         component.Direction.Up,
                 });
+                velocity.dy = 0;
             }
 
             if (will_collide_with_wall) {

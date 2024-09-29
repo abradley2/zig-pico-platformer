@@ -1,4 +1,5 @@
-// useful utility for creating "slice-arrays" that can be stack allocated without the boilerplate
+// creates a type that is a backing array of capacity `cap` and a `n` representing
+// the length of a slice of that array with 0-n elements.
 pub fn Make(
     comptime Item: type,
     comptime n: usize,
