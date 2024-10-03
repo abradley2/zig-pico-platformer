@@ -47,8 +47,6 @@ pub fn main() anyerror!void {
         &world,
     );
 
-    std.debug.print("Player entityId {?}\n", .{scene.player_entity_id});
-
     defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(61); // Set our game to run at 60 frames-per-second
@@ -73,7 +71,7 @@ pub fn main() anyerror!void {
             screenHeight = @floatFromInt(rl.getScreenHeight());
         }
 
-        const delta = rl.getFrameTime() / 0.01667;
+        const delta = @max(0.5, @min(rl.getFrameTime() / 0.01667, 2));
         const zoom: f32 = screenWidth / base_game_width;
 
         camera.zoom = zoom;
@@ -170,6 +168,5 @@ pub fn main() anyerror!void {
         }
 
         rl.drawFPS(10, 10);
-        rl.drawFPS(100, 100);
     }
 }

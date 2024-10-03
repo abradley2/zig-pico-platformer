@@ -110,13 +110,25 @@ pub const CustomProperty = struct {
 
 pub const TileSetID = enum(u8) {
     TileMap,
-    pub fn fromString(s: []const u8) !TileSetID {
-        var buffer: [128]u8 = undefined;
-        var fba = std.heap.FixedBufferAllocator.init(&buffer);
+    pub fn getPathComparator(
+        comptime segment_len: usize,
+        comptime segments: [segment_len][]const u8,
+    ) type {
+        return struct {
+            pub fn compare(str: []const u8) bool {
+                var buffer: [128]u8 = undefined;
+                var fba = std.heap.FixedBufferAllocator.init(&buffer);
+                const expected_path = std.fs.path.join(fba.allocator(), &segments) catch "";
 
-        var tile_map_segments = [3][]const u8{ "assets", "image", "tile_map.json" };
-        const tile_map_path = try std.fs.path.join(fba.allocator(), &tile_map_segments);
-        if (std.mem.eql(u8, tile_map_path, s)) {
+                return std.mem.eql(u8, expected_path, str);
+            }
+        };
+    }
+    pub fn fromString(s: []const u8) !TileSetID {
+        if (getPathComparator(
+            3,
+            [_][]const u8{ "assets", "image", "tile_map.json" },
+        ).compare(s)) {
             return TileSetID.TileMap;
         }
 
@@ -340,9 +352,13 @@ pub const TileMap = struct {
             const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
             defer allocator.free(image_path);
 
-            const texture_ptr = try allocator.create(rl.Texture2D);
-            texture_ptr.* = rl.loadTexture(image_path);
-            try texture_map.put(tile_set_id, texture_ptr);
+            const existing_texture_ptr = texture_map.get(tile_set_id);
+
+            if (existing_texture_ptr == null) {
+                const texture_ptr = try allocator.create(rl.Texture2D);
+                texture_ptr.* = rl.loadTexture(image_path);
+                try texture_map.put(tile_set_id, texture_ptr);
+            }
 
             parsed_tile_set.tilesetid = tile_set_id;
             parsed_tile_set.firstgid = tile_set_ref.firstgid;
