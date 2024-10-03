@@ -49,29 +49,17 @@ pub fn createEntity(self: *World) error{OutOfMemory}!usize {
 }
 
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
-    const is_toggle_for_components = try allocator.alloc(?component.IsToggleFor, max_entity_count);
-    const is_block_components = try allocator.alloc(?component.IsBlock, max_entity_count);
-    const entity_collision_components = try allocator.alloc(?component.EntityCollision, max_entity_count);
-    const direction_components = try allocator.alloc(?component.Direction, max_entity_count);
-    const grounded_wander_components = try allocator.alloc(?component.GroundedWander, max_entity_count);
-    const animated_sprite_components = try allocator.alloc(?component.AnimatedSprite, max_entity_count);
-    const texture_render_components = try allocator.alloc(?component.TextureRender, max_entity_count);
-    const debug_render_components = try allocator.alloc(?component.DebugRender, max_entity_count);
-    const position_components = try allocator.alloc(?component.Position, max_entity_count);
-    const velocity_components = try allocator.alloc(?component.Velocity, max_entity_count);
-    const collision_box_components = try allocator.alloc(?component.CollisionBox, max_entity_count);
-
-    initToNull(component.IsToggleFor, is_toggle_for_components);
-    initToNull(component.IsBlock, is_block_components);
-    initToNull(component.EntityCollision, entity_collision_components);
-    initToNull(component.Direction, direction_components);
-    initToNull(component.GroundedWander, grounded_wander_components);
-    initToNull(component.AnimatedSprite, animated_sprite_components);
-    initToNull(component.TextureRender, texture_render_components);
-    initToNull(component.DebugRender, debug_render_components);
-    initToNull(component.Position, position_components);
-    initToNull(component.Velocity, velocity_components);
-    initToNull(component.CollisionBox, collision_box_components);
+    const is_toggle_for_components = try ComponentSet(component.IsToggleFor).init(allocator);
+    const is_block_components = try ComponentSet(component.IsBlock).init(allocator);
+    const entity_collision_components = try ComponentSet(component.EntityCollision).init(allocator);
+    const direction_components = try ComponentSet(component.Direction).init(allocator);
+    const grounded_wander_components = try ComponentSet(component.GroundedWander).init(allocator);
+    const animated_sprite_components = try ComponentSet(component.AnimatedSprite).init(allocator);
+    const texture_render_components = try ComponentSet(component.TextureRender).init(allocator);
+    const debug_render_components = try ComponentSet(component.DebugRender).init(allocator);
+    const position_components = try ComponentSet(component.Position).init(allocator);
+    const velocity_components = try ComponentSet(component.Velocity).init(allocator);
+    const collision_box_components = try ComponentSet(component.CollisionBox).init(allocator);
 
     const active_ids = std.AutoHashMap(usize, bool).init(allocator);
     var inactive_ids = std.AutoHashMap(usize, bool).init(allocator);
@@ -97,8 +85,20 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     };
 }
 
-fn initToNull(comptime T: anytype, slice: []?T) void {
-    for (0..slice.len) |idx| {
-        slice[idx] = null;
-    }
+pub fn ComponentSet(
+    comptime T: anytype,
+) type {
+    return struct {
+        const Self = @This();
+        pub fn initToNull(slice: []?T) void {
+            for (0..slice.len) |idx| {
+                slice[idx] = null;
+            }
+        }
+        pub fn init(alloc: std.mem.Allocator) ![]?T {
+            const slice = try alloc.alloc(?T, max_entity_count);
+            Self.initToNull(slice);
+            return slice;
+        }
+    };
 }
