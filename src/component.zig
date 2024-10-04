@@ -2,14 +2,6 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
-pub const TextRender = struct {
-    text: Slice.Make(u8, 0, 256).T,
-    delta_per_letter: f32 = 2,
-    current_delta: f32 = false,
-    current_letter: usize,
-    is_completed: bool = false,
-};
-
 pub const BlockType = enum(u4) {
     XBlock,
     OBlock,
@@ -75,4 +67,9 @@ pub const CollisionBox: type = struct {
     did_touch_wall: bool = false,
     on_edge: ?bool = null,
     disable_collisions: bool = false,
+};
+
+pub const RespawnPoint: type = struct {
+    x: f32,
+    y: f32,
 };

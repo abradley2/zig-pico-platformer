@@ -27,6 +27,11 @@ pub fn makePlayerEntity(
     const player = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
 
+    world.respawn_point_components[player] = component.RespawnPoint{
+        .x = start_x,
+        .y = start_y,
+    };
+
     world.animated_sprite_components[player] = component.AnimatedSprite{
         .texture = texture,
         .animation_rects = player_run_animation,
@@ -77,6 +82,11 @@ pub fn makeBouncerEntity(
 ) !void {
     const bouncer = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.respawn_point_components[bouncer] = component.RespawnPoint{
+        .x = start_x,
+        .y = start_y,
+    };
 
     world.animated_sprite_components[bouncer] = component.AnimatedSprite{
         .texture = texture,

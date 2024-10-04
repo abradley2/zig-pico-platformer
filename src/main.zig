@@ -84,6 +84,7 @@ pub fn main() anyerror!void {
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);
+        system.runCheckRespawnSysten(world);
         try scene.advanceCollisions();
 
         rl.beginDrawing();

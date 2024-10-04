@@ -28,6 +28,33 @@ fn doesCollideRects(
     return (entity_rect.x < collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width > collision_rect.x and entity_rect.y < collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height > collision_rect.y);
 }
 
+pub fn runCheckRespawnSysten(
+    world: World,
+) void {
+    for (
+        0..,
+        world.position_components,
+        world.respawn_point_components,
+        world.velocity_components,
+    ) |entity_id, has_position, has_respawn, has_velocity| {
+        const position = has_position orelse continue;
+        const respawn = has_respawn orelse continue;
+        if (has_velocity == null) continue;
+
+        if (position.y > respawn.y + 1000) {
+            world.position_components[entity_id] = component.Position{
+                .x = respawn.x,
+                .y = respawn.y,
+            };
+
+            world.velocity_components[entity_id] = component.Velocity{
+                .dx = 0,
+                .dy = 0,
+            };
+        }
+    }
+}
+
 fn toggleXBlocks(
     world: World,
 ) void {
