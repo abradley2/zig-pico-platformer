@@ -88,6 +88,10 @@ pub fn makeBouncerEntity(
         .y = start_y,
     };
 
+    world.bouncy_components[bouncer] = component.Bouncy{
+        .speed = 4.5,
+    };
+
     world.animated_sprite_components[bouncer] = component.AnimatedSprite{
         .texture = texture,
         .animation_rects = bouncer_default_animation,

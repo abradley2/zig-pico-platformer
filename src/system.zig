@@ -164,6 +164,20 @@ pub fn runEntityCollisionSystem(
                 toggleXBlocks(world);
             }
         }
+
+        check_player_bounce: {
+            if (entity_a_is_player == false) {
+                break :check_player_bounce;
+            }
+            const player_id = entity_collision.entity_a;
+            const bouncy = world.bouncy_components[entity_collision.entity_b] orelse break :check_player_bounce;
+            var player_velocity = world.velocity_components[player_id] orelse break :check_player_bounce;
+
+            if (entity_collision.atb_dir == component.Direction.Down) {
+                player_velocity.dy = bouncy.speed * -1;
+                world.velocity_components[player_id] = player_velocity;
+            }
+        }
     }
 }
 
@@ -501,5 +515,44 @@ pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
 
         world.direction_components[entity_id] = direction;
         world.velocity_components[entity_id] = velocity;
+    }
+}
+
+pub fn runCameraFollowSystem(
+    camera: *rl.Camera2D,
+    scene: Scene,
+    world: World,
+) void {
+    if (scene.player_entity_id) |player_entity_id| {
+        const has_position = world.position_components[player_entity_id];
+        const position = has_position orelse return;
+
+        const eventual_target = rl.Vector2{
+            .x = position.x - 200,
+            .y = position.y - 100,
+        };
+
+        // the camera should move to the eventual target
+        // in a sort of easing in fashion based on the current distance
+
+        const current_target = camera.target;
+        const distance = rl.Vector2{
+            .x = current_target.x - eventual_target.x,
+            .y = current_target.y - eventual_target.y,
+        };
+
+        const distance_magnitude = rl.Vector2{
+            .x = distance.x * distance.x,
+            .y = distance.y * distance.y,
+        };
+
+        const distance_sum = distance_magnitude.x + distance_magnitude.y;
+
+        if (distance_sum > 100) {
+            camera.target = rl.Vector2{
+                .x = current_target.x - (distance.x * 0.05),
+                .y = current_target.y - (distance.y * 0.05),
+            };
+        }
     }
 }

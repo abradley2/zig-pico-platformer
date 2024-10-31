@@ -73,3 +73,7 @@ pub const RespawnPoint: type = struct {
     x: f32,
     y: f32,
 };
+
+pub const Bouncy: type = struct {
+    speed: f32,
+};

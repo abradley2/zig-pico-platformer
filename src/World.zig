@@ -20,6 +20,7 @@ position_components: []?component.Position,
 velocity_components: []?component.Velocity,
 collision_box_components: []?component.CollisionBox,
 respawn_point_components: []?component.RespawnPoint,
+bouncy_components: []?component.Bouncy,
 
 pub fn freeEntity(self: *World, entity_id: usize) void {
     self.is_block_components[entity_id] = null;
@@ -34,6 +35,7 @@ pub fn freeEntity(self: *World, entity_id: usize) void {
     self.velocity_components[entity_id] = null;
     self.collision_box_components[entity_id] = null;
     self.respawn_point_components[entity_id] = null;
+    self.bouncy_components[entity_id] = null;
 
     self.active_ids.remove(entity_id);
     self.inactive_ids.put(entity_id, true);
@@ -63,6 +65,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const velocity_components = try ComponentSet(component.Velocity).init(allocator);
     const collision_box_components = try ComponentSet(component.CollisionBox).init(allocator);
     const respawn_point_components = try ComponentSet(component.RespawnPoint).init(allocator);
+    const bouncy_components = try ComponentSet(component.Bouncy).init(allocator);
 
     const active_ids = std.AutoHashMap(usize, bool).init(allocator);
     var inactive_ids = std.AutoHashMap(usize, bool).init(allocator);
@@ -86,6 +89,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
         .velocity_components = velocity_components,
         .collision_box_components = collision_box_components,
         .respawn_point_components = respawn_point_components,
+        .bouncy_components = bouncy_components,
     };
 }
 

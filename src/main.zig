@@ -59,7 +59,7 @@ pub fn main() anyerror!void {
         .zoom = 1,
     };
 
-    const base_game_width: f32 = 800;
+    const base_game_width: f32 = 400;
     var keyboard = Keyboard{};
 
     // Main game loop
@@ -85,6 +85,7 @@ pub fn main() anyerror!void {
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);
         system.runCheckRespawnSysten(world);
+        system.runCameraFollowSystem(&camera, scene, world);
         try scene.advanceCollisions();
 
         rl.beginDrawing();
@@ -94,6 +95,8 @@ pub fn main() anyerror!void {
         defer rl.endMode2D();
 
         rl.clearBackground(rl.Color.black);
+
+        rl.drawFPS(10, 10);
 
         const tile_height: f32 = @as(f32, @floatFromInt(tile_map.tile_height));
         const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
@@ -167,7 +170,5 @@ pub fn main() anyerror!void {
                 rl.Color.blue,
             );
         }
-
-        rl.drawFPS(10, 10);
     }
 }
