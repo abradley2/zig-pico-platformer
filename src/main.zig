@@ -78,7 +78,6 @@ pub fn main() anyerror!void {
 
         system.playerControlsSystems(keyboard, scene, world);
         system.runGravitySystem(delta, world);
-
         try system.runCollisionSystem(delta, &scene, world);
         system.runEntityCollisionSystem(delta, scene, world);
         system.runMovementSystem(delta, world);
