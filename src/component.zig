@@ -2,6 +2,14 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub const Transform: type = struct {
+    x: f32,
+    y: f32,
+    current_delta: f32,
+    delta_per_unit: f32,
+    unit: f32,
+};
+
 pub const BlockType = enum(u4) {
     XBlock,
     OBlock,
