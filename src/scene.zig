@@ -159,7 +159,7 @@ test "newCollision memory" {
 
 pub fn advanceCollisions(
     self: *Scene,
-) !void {
+) error{OutOfMemory}!void {
     const allocator = self.allocator;
     const prev_collisions = &self.prev_entity_collisions_hash;
     const current_collisions = &self.entity_collisions_hash;

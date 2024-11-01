@@ -185,7 +185,7 @@ pub fn runCollisionSystem(
     delta: f32,
     scene: *Scene,
     w: World,
-) !void {
+) error{OutOfMemory}!void {
     for (
         0..,
         w.position_components,
