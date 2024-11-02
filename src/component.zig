@@ -10,6 +10,16 @@ pub const Transform: type = struct {
     unit: f32,
 };
 
+pub fn bump_transform() Transform {
+    return Transform{
+        .x = 0,
+        .y = -5,
+        .current_delta = 0,
+        .delta_per_unit = 1,
+        .unit = 0.25,
+    };
+}
+
 pub const BlockType = enum(u4) {
     XBlock,
     OBlock,

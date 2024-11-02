@@ -189,6 +189,7 @@ pub fn runEntityCollisionSystem(
                 entity_collision.atb_dir == component.Direction.Up)
             {
                 toggleOBlocks(world);
+                world.transform_components[entity_collision.entity_b] = component.bump_transform();
             }
         }
 
@@ -199,6 +200,7 @@ pub fn runEntityCollisionSystem(
                 entity_collision.atb_dir == component.Direction.Up)
             {
                 toggleXBlocks(world);
+                world.transform_components[entity_collision.entity_b] = component.bump_transform();
             }
         }
 
@@ -215,13 +217,7 @@ pub fn runEntityCollisionSystem(
                 player_velocity.dy = bouncy.speed * -1;
                 world.velocity_components[player_id] = player_velocity;
 
-                world.transform_components[entity_collision.entity_b] = component.Transform{
-                    .x = 0,
-                    .y = -5,
-                    .current_delta = 0,
-                    .delta_per_unit = 1,
-                    .unit = 0.25,
-                };
+                world.transform_components[entity_collision.entity_b] = component.bump_transform();
             }
         }
     }
