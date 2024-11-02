@@ -18,14 +18,20 @@ fn doesCollide(
     const collision_bottom_right_x = collision_box.x + collision_box.width;
     const collision_bottom_right_y = collision_box.y + collision_box.height;
 
-    return (entity_top_left_x < collision_bottom_right_x and entity_bottom_right_x > collision_top_left_x and entity_top_left_y < collision_bottom_right_y and entity_bottom_right_y > collision_top_left_y);
+    return entity_top_left_x < collision_bottom_right_x and
+        entity_bottom_right_x > collision_top_left_x and
+        entity_top_left_y < collision_bottom_right_y and
+        entity_bottom_right_y > collision_top_left_y;
 }
 
 fn doesCollideRects(
     entity_rect: rl.Rectangle,
     collision_rect: rl.Rectangle,
 ) bool {
-    return (entity_rect.x < collision_rect.x + collision_rect.width and entity_rect.x + entity_rect.width > collision_rect.x and entity_rect.y < collision_rect.y + collision_rect.height and entity_rect.y + entity_rect.height > collision_rect.y);
+    return entity_rect.x < collision_rect.x + collision_rect.width and
+        entity_rect.x + entity_rect.width > collision_rect.x and
+        entity_rect.y < collision_rect.y + collision_rect.height and
+        entity_rect.y + entity_rect.height > collision_rect.y;
 }
 
 pub fn runCheckRespawnSysten(
