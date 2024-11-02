@@ -137,6 +137,8 @@ pub fn runTransformSystem(
             continue;
         }
 
+        transform.current_delta = 0;
+
         if (transform.x > 0) {
             transform.x = @max(0, transform.x - transform.unit);
         } else if (transform.x < 0) {
@@ -147,6 +149,11 @@ pub fn runTransformSystem(
             transform.y = @max(0, transform.y - transform.unit);
         } else if (transform.y < 0) {
             transform.y = @min(0, transform.y + transform.unit);
+        }
+
+        if (transform.x == 0 and transform.y == 0) {
+            world.transform_components[entity_id] = null;
+            continue;
         }
 
         world.transform_components[entity_id] = transform;
@@ -210,10 +217,10 @@ pub fn runEntityCollisionSystem(
 
                 world.transform_components[entity_collision.entity_b] = component.Transform{
                     .x = 0,
-                    .y = -4,
+                    .y = -5,
                     .current_delta = 0,
-                    .delta_per_unit = 16,
-                    .unit = 1,
+                    .delta_per_unit = 1,
+                    .unit = 0.25,
                 };
             }
         }
