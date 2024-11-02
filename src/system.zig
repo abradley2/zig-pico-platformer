@@ -123,6 +123,36 @@ pub fn toggleOBlocks(
     }
 }
 
+pub fn runTransformSystem(
+    delta: f32,
+    world: World,
+) void {
+    for (0.., world.transform_components) |entity_id, has_transform| {
+        var transform = has_transform orelse continue;
+
+        transform.current_delta = transform.current_delta + delta;
+
+        if (transform.current_delta < transform.delta_per_unit) {
+            world.transform_components[entity_id] = transform;
+            continue;
+        }
+
+        if (transform.x > 0) {
+            transform.x = @max(0, transform.x - transform.unit);
+        } else if (transform.x < 0) {
+            transform.x = @min(0, transform.x + transform.unit);
+        }
+
+        if (transform.y > 0) {
+            transform.y = @max(0, transform.y - transform.unit);
+        } else if (transform.y < 0) {
+            transform.y = @min(0, transform.y + transform.unit);
+        }
+
+        world.transform_components[entity_id] = transform;
+    }
+}
+
 pub fn runEntityCollisionSystem(
     delta: f32,
     scene: Scene,
@@ -171,11 +201,20 @@ pub fn runEntityCollisionSystem(
             }
             const player_id = entity_collision.entity_a;
             const bouncy = world.bouncy_components[entity_collision.entity_b] orelse break :check_player_bounce;
+
             var player_velocity = world.velocity_components[player_id] orelse break :check_player_bounce;
 
             if (entity_collision.atb_dir == component.Direction.Down) {
                 player_velocity.dy = bouncy.speed * -1;
                 world.velocity_components[player_id] = player_velocity;
+
+                world.transform_components[entity_collision.entity_b] = component.Transform{
+                    .x = 0,
+                    .y = -4,
+                    .current_delta = 0,
+                    .delta_per_unit = 16,
+                    .unit = 1,
+                };
             }
         }
     }

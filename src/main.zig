@@ -80,6 +80,7 @@ pub fn main() anyerror!void {
         system.runGravitySystem(delta, world);
         try system.runCollisionSystem(delta, &scene, world);
         system.runEntityCollisionSystem(delta, scene, world);
+        system.runTransformSystem(delta, world);
         system.runMovementSystem(delta, world);
         system.runAnimationSystem(delta, world);
         system.runWanderSystem(delta, scene, world);
@@ -151,7 +152,6 @@ pub fn main() anyerror!void {
             has_collision_box,
             has_animated_sprite,
         | {
-            _ = entity_id;
             const position = has_position orelse continue;
             const collision_box = has_collision_box orelse continue;
             const animated_sprite = has_animated_sprite orelse continue;
@@ -159,12 +159,21 @@ pub fn main() anyerror!void {
             const animation_rects = animated_sprite.animation_rects.@"0";
             const animation_rect = animation_rects[animated_sprite.current_frame];
 
+            const default_transform = component.Transform{
+                .x = 0,
+                .y = 0,
+                .current_delta = 0,
+                .delta_per_unit = 0,
+                .unit = 0,
+            };
+            const transform = world.transform_components[entity_id] orelse default_transform;
+
             rl.drawTextureRec(
                 animated_sprite.texture.*,
                 animation_rect,
                 rl.Vector2{
-                    .x = position.x,
-                    .y = position.y,
+                    .x = position.x + transform.x,
+                    .y = position.y + transform.y,
                 },
                 rl.Color.blue,
             );
