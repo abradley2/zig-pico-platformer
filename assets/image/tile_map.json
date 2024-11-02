@@ -293,6 +293,42 @@
                 }]
         }, 
         {
+         "id":131,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":132,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":133,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":134,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":135,
          "properties":[
                 {

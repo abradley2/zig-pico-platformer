@@ -293,10 +293,12 @@ pub fn runCollisionSystem(
             0..,
             w.position_components,
             w.collision_box_components,
+            w.velocity_components,
         ) |
             other_entity_id,
             other_has_position,
             other_has_collision_box,
+            other_has_velocity,
         | {
             if (entityId == other_entity_id) {
                 continue;
@@ -372,7 +374,7 @@ pub fn runCollisionSystem(
                     edge_collision_box.y + edge_collision_box.height,
                     other_collision_rect,
                 );
-                if (did_collide) {
+                if (did_collide and other_has_velocity == null) {
                     on_edge = false;
                 }
             }
