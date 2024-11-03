@@ -167,6 +167,11 @@
                  "name":"is_o_block",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"is_toggled",
+                 "type":"bool",
+                 "value":true
                 }]
         }, 
         {
@@ -183,6 +188,11 @@
          "properties":[
                 {
                  "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"is_toggled",
                  "type":"bool",
                  "value":true
                 }, 
@@ -258,6 +268,11 @@
                  "name":"is_o_block",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"is_toggled",
+                 "type":"bool",
+                 "value":false
                 }]
         }, 
         {
@@ -276,6 +291,11 @@
                  "name":"is_collision_box",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"is_toggled",
+                 "type":"bool",
+                 "value":false
                 }, 
                 {
                  "name":"is_x_block",
@@ -942,6 +962,24 @@
         }, 
         {
          "id":354,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":357,
+         "properties":[
+                {
+                 "name":"is_collision_box",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":358,
          "properties":[
                 {
                  "name":"is_collision_box",

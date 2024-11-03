@@ -579,7 +579,7 @@ pub fn runCameraFollowSystem(
 
         const eventual_target = rl.Vector2{
             .x = position.x - 200,
-            .y = position.y - 100,
+            .y = position.y - 150,
         };
 
         // the camera should move to the eventual target

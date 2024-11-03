@@ -140,7 +140,7 @@ pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureM
 
     world.animated_sprite_components[x_button] = component.AnimatedSprite{
         .texture = texture,
-        .animation_rects = x_button_inactive_animation,
+        .animation_rects = x_button_active_animation,
         .play_animation = null,
         .delta_per_frame = 60,
         .current_delta = 0,
@@ -166,7 +166,13 @@ pub const x_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
     rl.Rectangle{ .x = 160, .y = 48, .width = 16, .height = 16 },
 });
 
-pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMap, world: *World) !void {
+pub fn makeXBlockEntity(
+    start_x: f32,
+    start_y: f32,
+    is_toggled: bool,
+    texture_map: tiled.TextureMap,
+    world: *World,
+) !void {
     const x_block = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
 
@@ -177,7 +183,7 @@ pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMa
 
     world.animated_sprite_components[x_block] = component.AnimatedSprite{
         .texture = texture,
-        .animation_rects = x_block_active_animation,
+        .animation_rects = if (is_toggled) x_block_active_animation else x_block_inactive_animation,
         .play_animation = null,
         .delta_per_frame = 60,
         .current_delta = 0,
@@ -190,6 +196,7 @@ pub fn makeXBlockEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureMa
         .width = 16,
         .height = 16,
         .did_touch_ground = false,
+        .disable_collisions = is_toggled == false,
     };
 
     world.is_block_components[x_block] = component.BlockType.XBlock;
@@ -248,6 +255,7 @@ pub const o_block_inactive_animation = Slice.Make(rl.Rectangle, 1, 10).init(.{
 pub fn makeOBlockEntity(
     start_x: f32,
     start_y: f32,
+    is_toggled: bool,
     texture_map: tiled.TextureMap,
     world: *World,
 ) !void {
@@ -261,7 +269,7 @@ pub fn makeOBlockEntity(
 
     world.animated_sprite_components[o_block] = component.AnimatedSprite{
         .texture = texture,
-        .animation_rects = o_block_active_animation,
+        .animation_rects = if (is_toggled) o_block_active_animation else o_block_inactive_animation,
         .play_animation = null,
         .delta_per_frame = 60,
         .current_delta = 0,
@@ -274,6 +282,7 @@ pub fn makeOBlockEntity(
         .width = 16,
         .height = 16,
         .did_touch_ground = false,
+        .disable_collisions = is_toggled == false,
     };
 
     world.is_block_components[o_block] = component.BlockType.OBlock;
