@@ -2,6 +2,8 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub const Tint = rl.Color;
+
 pub const Transform: type = struct {
     x: f32,
     y: f32,

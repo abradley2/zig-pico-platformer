@@ -55,6 +55,7 @@ pub fn makePlayerEntity(
         .height = 12,
         .did_touch_ground = false,
     };
+    world.tint_components[player] = rl.Color.blue;
 
     return player;
 }
@@ -82,6 +83,8 @@ pub fn makeBouncerEntity(
 ) !void {
     const bouncer = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.tint_components[bouncer] = rl.Color.pink;
 
     world.respawn_point_components[bouncer] = component.RespawnPoint{
         .x = start_x,
@@ -155,6 +158,8 @@ pub fn makeXButtonEntity(start_x: f32, start_y: f32, texture_map: tiled.TextureM
         .did_touch_ground = false,
     };
 
+    world.tint_components[x_button] = rl.Color.green;
+
     world.is_toggle_for_components[x_button] = component.BlockType.XBlock;
 }
 
@@ -189,6 +194,8 @@ pub fn makeXBlockEntity(
         .current_delta = 0,
         .current_frame = 0,
     };
+
+    world.tint_components[x_block] = rl.Color.green;
 
     world.collision_box_components[x_block] = component.CollisionBox{
         .x_offset = 0,
@@ -241,6 +248,8 @@ pub fn makeOButtonEntity(
         .did_touch_ground = false,
     };
 
+    world.tint_components[o_button] = rl.Color.yellow;
+
     world.is_toggle_for_components[o_button] = component.BlockType.OBlock;
 }
 
@@ -275,6 +284,8 @@ pub fn makeOBlockEntity(
         .current_delta = 0,
         .current_frame = 0,
     };
+
+    world.tint_components[o_block] = rl.Color.yellow;
 
     world.collision_box_components[o_block] = component.CollisionBox{
         .x_offset = 0,

@@ -96,7 +96,10 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(rl.Color.black);
 
-        rl.drawFPS(10, 10);
+        rl.drawFPS(
+            @as(i32, @intFromFloat(camera.target.x)),
+            @as(i32, @intFromFloat(camera.target.y)),
+        );
 
         const tile_height: f32 = @as(f32, @floatFromInt(tile_map.tile_height));
         const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
@@ -146,15 +149,23 @@ pub fn main() anyerror!void {
             }
         }
 
-        for (0.., world.position_components, world.collision_box_components, world.animated_sprite_components) |
+        for (
+            0..,
+            world.position_components,
+            world.collision_box_components,
+            world.animated_sprite_components,
+            world.tint_components,
+        ) |
             entity_id,
             has_position,
             has_collision_box,
             has_animated_sprite,
+            has_tint,
         | {
             const position = has_position orelse continue;
             const collision_box = has_collision_box orelse continue;
             const animated_sprite = has_animated_sprite orelse continue;
+            const tint = has_tint orelse rl.Color.white;
             _ = collision_box;
             const animation_rects = animated_sprite.animation_rects.@"0";
             const animation_rect = animation_rects[animated_sprite.current_frame];
@@ -175,7 +186,7 @@ pub fn main() anyerror!void {
                     .x = position.x + transform.x,
                     .y = position.y + transform.y,
                 },
-                rl.Color.blue,
+                tint,
             );
         }
     }
