@@ -274,7 +274,7 @@ pub fn runCollisionSystem(
                         .x = entity_x1 - 1,
                         .y = entity_y2 + 3,
                         .width = 1,
-                        .height = 100,
+                        .height = 48,
                     };
                 }
                 if (direction == component.Direction.Right) {
@@ -282,7 +282,7 @@ pub fn runCollisionSystem(
                         .x = entity_x2 + 1,
                         .y = entity_y2 + 3,
                         .width = 1,
-                        .height = 100,
+                        .height = 48,
                     };
                 }
             } else {

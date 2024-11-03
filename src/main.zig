@@ -59,7 +59,7 @@ pub fn main() anyerror!void {
         .zoom = 1,
     };
 
-    const base_game_width: f32 = 400;
+    const base_game_width: f32 = 600;
     var keyboard = Keyboard{};
 
     // Main game loop
