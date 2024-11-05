@@ -24,23 +24,44 @@ bouncy_components: []?component.Bouncy,
 transform_components: []?component.Transform,
 tint_components: []?component.Tint,
 
-pub fn freeEntity(self: *World, entity_id: usize) void {
-    self.is_block_components[entity_id] = null;
-    self.is_toggle_for_components[entity_id] = null;
-    self.entity_collision_components[entity_id] = null;
-    self.grounded_wander_components[entity_id] = null;
-    self.direction_components[entity_id] = null;
-    self.animated_sprite_components[entity_id] = null;
-    self.texture_components[entity_id] = null;
-    self.debug_render_components[entity_id] = null;
-    self.position_components[entity_id] = null;
-    self.velocity_components[entity_id] = null;
-    self.collision_box_components[entity_id] = null;
-    self.respawn_point_components[entity_id] = null;
-    self.bouncy_components[entity_id] = null;
-    self.transform_components[entity_id] = null;
-    self.tint_components[entity_id] = null;
+pub fn makeFreeComponentFunc() type {
+    switch (@typeInfo(World)) {
+        .Struct => |s| {
+            return struct {
+                pub fn freeEntity(w: World, entity_id: usize) void {
+                    inline for (s.fields) |field| {
+                        const is_component = comptime std.mem.endsWith(u8, field.name, "_components");
 
+                        if (is_component == false) {
+                            continue;
+                        }
+
+                        switch (@typeInfo(field.type)) {
+                            .Pointer => |ptr| {
+                                switch (ptr.size) {
+                                    .Slice => {
+                                        switch (@typeInfo(ptr.child)) {
+                                            .Optional => {
+                                                @field(w, field.name)[entity_id] = null;
+                                            },
+                                            else => @compileError("Expected that the component field pointer is a slice of optional"),
+                                        }
+                                    },
+                                    else => @compileError("Expected that the component field pointer is a slice"),
+                                }
+                            },
+                            else => @compileError("Expected that the component field would be a pointer"),
+                        }
+                    }
+                }
+            };
+        },
+        else => @compileError("Expected a struct"),
+    }
+}
+
+pub fn freeEntity(self: *World, entity_id: usize) void {
+    makeFreeComponentFunc().freeEntity(self, entity_id);
     self.active_ids.remove(entity_id);
     self.inactive_ids.put(entity_id, true);
 }

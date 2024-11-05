@@ -195,7 +195,7 @@ pub fn runEntityCollisionSystem(
                 entity_collision.atb_dir == component.Direction.Up)
             {
                 toggleOBlocks(world);
-                world.transform_components[entity_collision.entity_b] = component.bump_transform();
+                world.transform_components[entity_collision.entity_b] = component.Transform.make_bump_transform();
             }
         }
 
@@ -206,7 +206,7 @@ pub fn runEntityCollisionSystem(
                 entity_collision.atb_dir == component.Direction.Up)
             {
                 toggleXBlocks(world);
-                world.transform_components[entity_collision.entity_b] = component.bump_transform();
+                world.transform_components[entity_collision.entity_b] = component.Transform.make_bump_transform();
             }
         }
 
@@ -223,7 +223,7 @@ pub fn runEntityCollisionSystem(
                 player_velocity.dy = bouncy.speed * -1;
                 world.velocity_components[player_id] = player_velocity;
 
-                world.transform_components[entity_collision.entity_b] = component.bump_transform();
+                world.transform_components[entity_collision.entity_b] = component.Transform.make_bump_transform();
             }
         }
     }
@@ -490,9 +490,9 @@ pub fn playerControlsSystems(
         }
 
         if (keyboard.left_is_down) {
-            velocity.dx = -1;
+            velocity.dx = -1.10;
         } else if (keyboard.right_is_down) {
-            velocity.dx = 1;
+            velocity.dx = 1.10;
         } else {
             velocity.dx = 0;
         }
