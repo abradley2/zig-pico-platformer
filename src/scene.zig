@@ -7,6 +7,13 @@ const component = @import("component.zig");
 
 pub const Scene = @This();
 
+pub const GameMode: type = enum {
+    StartMenu,
+    PauseMenu,
+    Game,
+    WinMenu,
+};
+
 dialogue_text: ?usize = null,
 
 allocator: std.mem.Allocator,

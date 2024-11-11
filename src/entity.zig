@@ -27,6 +27,14 @@ pub fn makePlayerEntity(
     const player = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
 
+    world.text_follow_components[player] = component.TextFollow{
+        .text = "Player",
+        .current_char = 0,
+        .delta_per_char = 16,
+        .offset_x = 0,
+        .offset_y = -16,
+    };
+
     world.respawn_point_components[player] = component.RespawnPoint{
         .x = start_x,
         .y = start_y,

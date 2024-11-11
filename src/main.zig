@@ -155,12 +155,14 @@ pub fn main() anyerror!void {
             world.collision_box_components,
             world.animated_sprite_components,
             world.tint_components,
+            world.text_follow_components,
         ) |
             entity_id,
             has_position,
             has_collision_box,
             has_animated_sprite,
             has_tint,
+            has_text_follow,
         | {
             const position = has_position orelse continue;
             const collision_box = has_collision_box orelse continue;
@@ -188,6 +190,16 @@ pub fn main() anyerror!void {
                 },
                 tint,
             );
+
+            if (has_text_follow) |text_follow| {
+                rl.drawText(
+                    @ptrCast(text_follow.text),
+                    @as(i32, @intFromFloat(position.x + text_follow.offset_x)),
+                    @as(i32, @intFromFloat(position.y + text_follow.offset_y)),
+                    6,
+                    rl.Color.white,
+                );
+            }
         }
     }
 }

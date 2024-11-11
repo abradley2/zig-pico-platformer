@@ -4,6 +4,14 @@ const Slice = @import("Slice.zig");
 
 pub const Tint = rl.Color;
 
+pub const TextFollow: type = struct {
+    text: []const u8,
+    current_char: usize,
+    delta_per_char: f32 = 16,
+    offset_x: f32,
+    offset_y: f32,
+};
+
 pub const Transform: type = struct {
     x: f32,
     y: f32,
