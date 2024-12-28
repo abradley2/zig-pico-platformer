@@ -88,15 +88,26 @@ pub fn main() anyerror!void {
         camera.zoom = zoom;
 
         switch (scene.game_mode) {
-            .StartMenu => {},
+            .Game => {},
             .PauseMenu => {},
-            .Game => {
-                system.playerControlsSystems(keyboard, scene, world);
+            .StartMenu => {
+                const movement_system = system.MakeMovementSystem(
+                    World,
+                    World.hasVelocity,
+                    World.hasPosition,
+                );
+                const player_controls_system = system.MakePlayerControlsSystem(
+                    World,
+                    World.hasVelocity,
+                    World.hasCollisionBox,
+                );
+
+                player_controls_system.run(&world, keyboard, scene);
                 system.runGravitySystem(delta, world);
                 try system.runCollisionSystem(delta, &scene, world);
                 system.runEntityCollisionSystem(delta, scene, world);
                 system.runTransformSystem(delta, world);
-                system.runMovementSystem(delta, world);
+                movement_system.run(delta, &world);
                 system.runAnimationSystem(delta, world);
                 system.runWanderSystem(delta, scene, world);
                 system.runCheckRespawnSysten(world);

@@ -25,6 +25,70 @@ transform_components: []?component.Transform,
 tint_components: []?component.Tint,
 text_follow_components: []?component.TextFollow,
 
+pub fn hasIsToggleFor(self: *World) []?component.IsToggleFor {
+    return self.is_toggle_for_components;
+}
+
+pub fn hasIsBlock(self: *World) []?component.IsBlock {
+    return self.is_block_components;
+}
+
+pub fn hasEntityCollision(self: *World) []?component.EntityCollision {
+    return self.entity_collision_components;
+}
+
+pub fn hasDirection(self: *World) []?component.Direction {
+    return self.direction_components;
+}
+
+pub fn hasGroundedWander(self: *World) []?component.GroundedWander {
+    return self.grounded_wander_components;
+}
+
+pub fn hasAnimatedSprite(self: *World) []?component.AnimatedSprite {
+    return self.animated_sprite_components;
+}
+
+pub fn hasTextureRender(self: *World) []?component.TextureRender {
+    return self.texture_render_components;
+}
+
+pub fn hasDebugRender(self: *World) []?component.DebugRender {
+    return self.debug_render_components;
+}
+
+pub fn hasPosition(self: *World) []?component.Position {
+    return self.position_components;
+}
+
+pub fn hasVelocity(self: *World) []?component.Velocity {
+    return self.velocity_components;
+}
+
+pub fn hasCollisionBox(self: *World) []?component.CollisionBox {
+    return self.collision_box_components;
+}
+
+pub fn hasRespawnPoint(self: *World) []?component.RespawnPoint {
+    return self.respawn_point_components;
+}
+
+pub fn hasBouncy(self: *World) []?component.Bouncy {
+    return self.bouncy_components;
+}
+
+pub fn hasTransform(self: *World) []?component.Transform {
+    return self.transform_components;
+}
+
+pub fn hasTint(self: *World) []?component.Tint {
+    return self.tint_components;
+}
+
+pub fn hasTextFollow(self: *World) []?component.TextFollow {
+    return self.text_follow_components;
+}
+
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const is_toggle_for_components = try ComponentSet(component.IsToggleFor).init(allocator);
     const is_block_components = try ComponentSet(component.IsBlock).init(allocator);

@@ -2,6 +2,10 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+pub fn HasComponent(comptime T: type, comptime C: type) type {
+    return fn (t: *T) []?C;
+}
+
 pub const Tint = rl.Color;
 
 pub const TextFollow: type = struct {
@@ -81,10 +85,18 @@ pub const Position: type = struct {
     y: f32,
 };
 
+pub fn HasPosition(comptime T: type) type {
+    return fn (t: *T) []?Position;
+}
+
 pub const Velocity: type = struct {
     dx: f32,
     dy: f32,
 };
+
+pub fn HasVelocity(comptime T: type) type {
+    return fn (t: *T) []?Velocity;
+}
 
 pub const CollisionBox: type = struct {
     x_offset: f32,

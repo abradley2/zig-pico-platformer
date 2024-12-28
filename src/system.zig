@@ -455,50 +455,103 @@ pub fn runGravitySystem(delta: f32, w: World) void {
     }
 }
 
-pub fn runMovementSystem(delta: f32, w: World) void {
-    for (0.., w.velocity_components, w.position_components) |
-        entityId,
-        has_velocity,
-        has_position,
-    | {
-        const velocity = has_velocity orelse continue;
-        var position = has_position orelse continue;
+pub fn MakeMovementSystem(
+    comptime T: anytype,
+    comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
+    comptime getPositionComponents: component.HasComponent(T, component.Position),
+) type {
+    return struct {
+        const Self = @This();
+        pub fn run(delta: f32, w: *T) void {
+            const velocity_components = getVelocityComponents(w);
+            var position_components = getPositionComponents(w);
 
-        position.x += (velocity.dx * delta);
-        position.y += (velocity.dy * delta);
+            for (0.., velocity_components, position_components) |
+                entityId,
+                has_velocity,
+                has_position,
+            | {
+                const velocity = has_velocity orelse continue;
+                var position = has_position orelse continue;
 
-        w.position_components[entityId] = position;
-    }
-}
+                position.x += (velocity.dx * delta);
+                position.y += (velocity.dy * delta);
 
-pub fn playerControlsSystems(
-    keyboard: Keyboard,
-    scene: Scene,
-    world: World,
-) void {
-    if (scene.player_entity_id) |player_entity_id| {
-        const has_collision_box = world.collision_box_components[player_entity_id];
-        const has_velocity = world.velocity_components[player_entity_id];
-
-        const collision_box = has_collision_box orelse return;
-        var velocity = has_velocity orelse return;
-
-        if (collision_box.did_touch_ground) {
-            if (keyboard.spacebar_pressed) {
-                velocity.dy = -3.5;
+                position_components[entityId] = position;
             }
         }
+    };
+}
 
-        if (keyboard.left_is_down) {
-            velocity.dx = -1.10;
-        } else if (keyboard.right_is_down) {
-            velocity.dx = 1.10;
-        } else {
-            velocity.dx = 0;
+pub fn MakePlayerControlsSystem(
+    comptime T: anytype,
+    comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
+    comptime getCollisionBoxComponents: component.HasComponent(T, component.CollisionBox),
+) type {
+    return struct {
+        pub fn run(
+            w: *T,
+            keyboard: Keyboard,
+            scene: Scene,
+        ) void {
+            const collision_box_components = getCollisionBoxComponents(w);
+            const velocity_components = getVelocityComponents(w);
+
+            if (scene.player_entity_id) |player_entity_id| {
+                const has_collision_box = collision_box_components[player_entity_id];
+                const has_velocity = velocity_components[player_entity_id];
+
+                const collision_box = has_collision_box orelse return;
+                var velocity = has_velocity orelse return;
+
+                if (collision_box.did_touch_ground) {
+                    if (keyboard.spacebar_pressed) {
+                        velocity.dy = -3.5;
+                    }
+                }
+
+                if (keyboard.left_is_down) {
+                    velocity.dx = -1.10;
+                } else if (keyboard.right_is_down) {
+                    velocity.dx = 1.10;
+                } else {
+                    velocity.dx = 0;
+                }
+
+                velocity_components[player_entity_id] = velocity;
+            }
         }
+    };
+}
 
-        world.velocity_components[player_entity_id] = velocity;
-    }
+pub fn MakeAnimationSystem(
+    comptime T: anytype,
+    comptime getAnimatedSpriteComponents: component.HasComponent(T, component.AnimatedSprite),
+) type {
+    return struct {
+        pub fn run(w: *T, delta: f32) void {
+            var animated_sprite_components = getAnimatedSpriteComponents(w);
+            for (0.., animated_sprite_components) |
+                entity_id,
+                has_animated_sprite,
+            | {
+                var animated_sprite = has_animated_sprite orelse continue;
+
+                animated_sprite.current_delta += delta;
+                if (animated_sprite.current_delta >= animated_sprite.delta_per_frame) {
+                    var next_frame = animated_sprite.current_frame + 1;
+                    const frame_len = animated_sprite.animation_rects.@"1";
+                    if (next_frame >= frame_len) {
+                        next_frame = 0;
+                    }
+                    animated_sprite.current_frame = next_frame;
+                    animated_sprite.current_delta = 0;
+                }
+
+                animated_sprite_components[entity_id] = animated_sprite;
+            }
+        }
+    };
 }
 
 pub fn runAnimationSystem(delta: f32, world: World) void {
