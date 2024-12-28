@@ -126,17 +126,38 @@ pub fn main() anyerror!void {
                     World,
                     World.hasAnimatedSprite,
                 );
+                const transform_system = system.MakeTransformSystem(
+                    World,
+                    World.hasTransform,
+                );
+                const wander_system = system.MakeWanderSystem(
+                    World,
+                    World.hasGroundedWander,
+                    World.hasVelocity,
+                    World.hasDirection,
+                    World.hasCollisionBox,
+                );
+                const check_respawn_system = system.MakeCheckRespawnSystem(
+                    World,
+                    World.hasPosition,
+                    World.hasRespawnPoint,
+                    World.hasVelocity,
+                );
+                const camera_follow_system = system.MakeCameraFollowSystem(
+                    World,
+                    World.hasPosition,
+                );
 
                 player_controls_system.run(&world, keyboard, scene);
                 gravity_system.run(delta, &world);
                 try collision_system.run(delta, &scene, &world);
                 entity_collision_system.run(delta, scene, &world);
-                system.runTransformSystem(delta, world);
+                transform_system.run(delta, &world);
                 movement_system.run(delta, &world);
                 animation_system.run(delta, &world);
-                system.runWanderSystem(delta, scene, world);
-                system.runCheckRespawnSysten(world);
-                system.runCameraFollowSystem(&camera, scene, world);
+                wander_system.run(delta, scene, &world);
+                check_respawn_system.run(&world);
+                camera_follow_system.run(&camera, scene, &world);
                 try scene.advanceCollisions();
             },
             .WinMenu => {},

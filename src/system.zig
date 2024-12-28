@@ -34,31 +34,42 @@ fn doesCollideRects(
         entity_rect.y + entity_rect.height > collision_rect.y;
 }
 
-pub fn runCheckRespawnSysten(
-    world: World,
-) void {
-    for (
-        0..,
-        world.position_components,
-        world.respawn_point_components,
-        world.velocity_components,
-    ) |entity_id, has_position, has_respawn, has_velocity| {
-        const position = has_position orelse continue;
-        const respawn = has_respawn orelse continue;
-        if (has_velocity == null) continue;
+pub fn MakeCheckRespawnSystem(
+    comptime T: type,
+    comptime getPositionComponents: component.HasComponent(T, component.Position),
+    comptime getRespawnPointComponents: component.HasComponent(T, component.RespawnPoint),
+    comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
+) type {
+    return struct {
+        pub fn run(w: *T) void {
+            const position_components = getPositionComponents(w);
+            const respawn_point_components = getRespawnPointComponents(w);
+            const velocity_components = getVelocityComponents(w);
 
-        if (position.y > respawn.y + 1000) {
-            world.position_components[entity_id] = component.Position{
-                .x = respawn.x,
-                .y = respawn.y,
-            };
+            for (
+                0..,
+                position_components,
+                respawn_point_components,
+                velocity_components,
+            ) |entity_id, has_position, has_respawn, has_velocity| {
+                const position = has_position orelse continue;
+                const respawn = has_respawn orelse continue;
+                if (has_velocity == null) continue;
 
-            world.velocity_components[entity_id] = component.Velocity{
-                .dx = 0,
-                .dy = 0,
-            };
+                if (position.y > respawn.y + 1000) {
+                    position_components[entity_id] = component.Position{
+                        .x = respawn.x,
+                        .y = respawn.y,
+                    };
+
+                    velocity_components[entity_id] = component.Velocity{
+                        .dx = 0,
+                        .dy = 0,
+                    };
+                }
+            }
         }
-    }
+    };
 }
 
 fn toggleXBlocks(
@@ -133,41 +144,46 @@ pub fn toggleOBlocks(
     }
 }
 
-pub fn runTransformSystem(
-    delta: f32,
-    world: World,
-) void {
-    for (0.., world.transform_components) |entity_id, has_transform| {
-        var transform = has_transform orelse continue;
+pub fn MakeTransformSystem(
+    comptime T: type,
+    comptime getTransformComponents: component.HasComponent(T, component.Transform),
+) type {
+    return struct {
+        pub fn run(delta: f32, w: *T) void {
+            var transform_components = getTransformComponents(w);
+            for (0.., transform_components) |entity_id, has_transform| {
+                var transform = has_transform orelse continue;
 
-        transform.current_delta = transform.current_delta + delta;
+                transform.current_delta = transform.current_delta + delta;
 
-        if (transform.current_delta < transform.delta_per_unit) {
-            world.transform_components[entity_id] = transform;
-            continue;
+                if (transform.current_delta < transform.delta_per_unit) {
+                    transform_components[entity_id] = transform;
+                    continue;
+                }
+
+                transform.current_delta = 0;
+
+                if (transform.x > 0) {
+                    transform.x = @max(0, transform.x - transform.unit);
+                } else if (transform.x < 0) {
+                    transform.x = @min(0, transform.x + transform.unit);
+                }
+
+                if (transform.y > 0) {
+                    transform.y = @max(0, transform.y - transform.unit);
+                } else if (transform.y < 0) {
+                    transform.y = @min(0, transform.y + transform.unit);
+                }
+
+                if (transform.x == 0 and transform.y == 0) {
+                    transform_components[entity_id] = null;
+                    continue;
+                }
+
+                transform_components[entity_id] = transform;
+            }
         }
-
-        transform.current_delta = 0;
-
-        if (transform.x > 0) {
-            transform.x = @max(0, transform.x - transform.unit);
-        } else if (transform.x < 0) {
-            transform.x = @min(0, transform.x + transform.unit);
-        }
-
-        if (transform.y > 0) {
-            transform.y = @max(0, transform.y - transform.unit);
-        } else if (transform.y < 0) {
-            transform.y = @min(0, transform.y + transform.unit);
-        }
-
-        if (transform.x == 0 and transform.y == 0) {
-            world.transform_components[entity_id] = null;
-            continue;
-        }
-
-        world.transform_components[entity_id] = transform;
-    }
+    };
 }
 
 pub fn MakeEntityCollisionSystem(
@@ -527,7 +543,7 @@ pub fn MakeMovementSystem(
 }
 
 pub fn MakePlayerControlsSystem(
-    comptime T: anytype,
+    comptime T: type,
     comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
     comptime getCollisionBoxComponents: component.HasComponent(T, component.CollisionBox),
 ) type {
@@ -597,86 +613,109 @@ pub fn MakeAnimationSystem(
     };
 }
 
-pub fn runWanderSystem(delta: f32, scene: Scene, world: World) void {
-    for (
-        0..,
-        world.grounded_wander_components,
-        world.velocity_components,
-        world.direction_components,
-        world.collision_box_components,
-    ) |
-        entity_id,
-        has_grounded_wander,
-        has_velocity,
-        has_direction,
-        has_collision_box,
-    | {
-        _ = delta;
-        const grounded_wander = has_grounded_wander orelse continue;
-        var velocity = has_velocity orelse continue;
-        var direction = has_direction orelse continue;
-        const collision_box = has_collision_box orelse continue;
+pub fn MakeWanderSystem(
+    comptime T: type,
+    comptime getGroundedWanderComponents: component.HasComponent(T, component.GroundedWander),
+    comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
+    comptime getDirectionComponents: component.HasComponent(T, component.Direction),
+    comptime getCollisionBoxComponents: component.HasComponent(T, component.CollisionBox),
+) type {
+    return struct {
+        pub fn run(delta: f32, scene: Scene, w: *T) void {
+            const grounded_wander_components = getGroundedWanderComponents(w);
+            var velocity_components = getVelocityComponents(w);
+            const direction_components = getDirectionComponents(w);
+            const collision_box_components = getCollisionBoxComponents(w);
 
-        if (collision_box.did_touch_wall or (collision_box.on_edge orelse false)) {
-            if (direction == component.Direction.Left) {
-                direction = component.Direction.Right;
-            } else {
-                direction = component.Direction.Left;
+            for (
+                0..,
+                grounded_wander_components,
+                velocity_components,
+                direction_components,
+                collision_box_components,
+            ) |
+                entity_id,
+                has_grounded_wander,
+                has_velocity,
+                has_direction,
+                has_collision_box,
+            | {
+                _ = delta;
+                const grounded_wander = has_grounded_wander orelse continue;
+                var velocity = has_velocity orelse continue;
+                var direction = has_direction orelse continue;
+                const collision_box = has_collision_box orelse continue;
+
+                if (collision_box.did_touch_wall or (collision_box.on_edge orelse false)) {
+                    if (direction == component.Direction.Left) {
+                        direction = component.Direction.Right;
+                    } else {
+                        direction = component.Direction.Left;
+                    }
+                }
+
+                if (direction == component.Direction.Left) {
+                    velocity.dx = grounded_wander.speed * -1;
+                } else {
+                    velocity.dx = grounded_wander.speed;
+                }
+
+                if (collision_box.did_touch_ground == false) {
+                    velocity.dx = 0;
+                }
+
+                _ = scene;
+
+                direction_components[entity_id] = direction;
+                velocity_components[entity_id] = velocity;
             }
         }
-
-        if (direction == component.Direction.Left) {
-            velocity.dx = grounded_wander.speed * -1;
-        } else {
-            velocity.dx = grounded_wander.speed;
-        }
-
-        if (collision_box.did_touch_ground == false) {
-            velocity.dx = 0;
-        }
-
-        _ = scene;
-
-        world.direction_components[entity_id] = direction;
-        world.velocity_components[entity_id] = velocity;
-    }
+    };
 }
 
-pub fn runCameraFollowSystem(
-    camera: *rl.Camera2D,
-    scene: Scene,
-    world: World,
-) void {
-    if (scene.player_entity_id) |player_entity_id| {
-        const has_position = world.position_components[player_entity_id];
-        const position = has_position orelse return;
+pub fn MakeCameraFollowSystem(
+    comptime T: type,
+    comptime getPositionComponents: component.HasComponent(T, component.Position),
+) type {
+    return struct {
+        pub fn run(
+            camera: *rl.Camera2D,
+            scene: Scene,
+            w: *T,
+        ) void {
+            const position_components = getPositionComponents(w);
+            if (scene.player_entity_id) |player_entity_id| {
+                const has_position = position_components[player_entity_id];
+                const position = has_position orelse return;
 
-        const eventual_target = rl.Vector2{
-            .x = position.x - 200,
-            .y = position.y - 150,
-        };
+                const eventual_target = rl.Vector2{
+                    .x = position.x - 200,
+                    .y = position.y - 150,
+                };
 
-        // the camera should move to the eventual target
-        // in a sort of easing in fashion based on the current distance
+                // the camera should move to the eventual target
+                // in a sort of easing in fashion based on the current distance
 
-        const current_target = camera.target;
-        const distance = rl.Vector2{
-            .x = current_target.x - eventual_target.x,
-            .y = current_target.y - eventual_target.y,
-        };
+                const current_target = camera.target;
+                const distance = rl.Vector2{
+                    .x = current_target.x - eventual_target.x,
+                    .y = current_target.y - eventual_target.y,
+                };
 
-        const distance_magnitude = rl.Vector2{
-            .x = distance.x * distance.x,
-            .y = distance.y * distance.y,
-        };
+                const distance_magnitude = rl.Vector2{
+                    .x = distance.x * distance.x,
+                    .y = distance.y * distance.y,
+                };
 
-        const distance_sum = distance_magnitude.x + distance_magnitude.y;
+                const distance_sum = distance_magnitude.x + distance_magnitude.y;
 
-        if (distance_sum > 100) {
-            camera.target = rl.Vector2{
-                .x = current_target.x - (distance.x * 0.05),
-                .y = current_target.y - (distance.y * 0.05),
-            };
+                if (distance_sum > 100) {
+                    camera.target = rl.Vector2{
+                        .x = current_target.x - (distance.x * 0.05),
+                        .y = current_target.y - (distance.y * 0.05),
+                    };
+                }
+            }
         }
-    }
+    };
 }
