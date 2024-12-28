@@ -14,6 +14,8 @@ pub const GameMode: type = enum {
     WinMenu,
 };
 
+game_mode: GameMode = GameMode.StartMenu,
+
 dialogue_text: ?usize = null,
 
 allocator: std.mem.Allocator,

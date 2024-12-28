@@ -87,17 +87,24 @@ pub fn main() anyerror!void {
 
         camera.zoom = zoom;
 
-        system.playerControlsSystems(keyboard, scene, world);
-        system.runGravitySystem(delta, world);
-        try system.runCollisionSystem(delta, &scene, world);
-        system.runEntityCollisionSystem(delta, scene, world);
-        system.runTransformSystem(delta, world);
-        system.runMovementSystem(delta, world);
-        system.runAnimationSystem(delta, world);
-        system.runWanderSystem(delta, scene, world);
-        system.runCheckRespawnSysten(world);
-        system.runCameraFollowSystem(&camera, scene, world);
-        try scene.advanceCollisions();
+        switch (scene.game_mode) {
+            .StartMenu => {},
+            .PauseMenu => {},
+            .Game => {
+                system.playerControlsSystems(keyboard, scene, world);
+                system.runGravitySystem(delta, world);
+                try system.runCollisionSystem(delta, &scene, world);
+                system.runEntityCollisionSystem(delta, scene, world);
+                system.runTransformSystem(delta, world);
+                system.runMovementSystem(delta, world);
+                system.runAnimationSystem(delta, world);
+                system.runWanderSystem(delta, scene, world);
+                system.runCheckRespawnSysten(world);
+                system.runCameraFollowSystem(&camera, scene, world);
+                try scene.advanceCollisions();
+            },
+            .WinMenu => {},
+        }
 
         rl.beginDrawing();
         defer rl.endDrawing();
