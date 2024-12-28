@@ -1,10 +1,12 @@
 const std = @import("std");
 const component = @import("./component.zig");
 
-const max_entity_count: usize = 1000;
+const max_entity_count: usize = 512;
 
 const World = @This();
 
+// TODO: lets make it so world has no non-component fields, let it all be in Scene
+// this will make our macro guarantees stronger
 active_ids: std.AutoHashMap(usize, bool),
 inactive_ids: std.AutoHashMap(usize, bool),
 
@@ -163,6 +165,7 @@ pub fn makeFreeComponentFunc() type {
                         const is_component = comptime std.mem.endsWith(u8, field.name, "_components");
 
                         if (is_component == false) {
+                            // TODO: panic here on compile
                             continue;
                         }
 

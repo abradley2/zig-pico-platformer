@@ -101,14 +101,39 @@ pub fn main() anyerror!void {
                     World.hasVelocity,
                     World.hasCollisionBox,
                 );
+                const collision_system = system.MakeCollisionSystem(
+                    World,
+                    World.hasPosition,
+                    World.hasCollisionBox,
+                    World.hasVelocity,
+                    World.hasDirection,
+                );
+                const entity_collision_system = system.MakeEntityCollisionSystem(
+                    World,
+                    World.hasIsToggleFor,
+                    World.hasBouncy,
+                    World.hasVelocity,
+                    World.hasIsBlock,
+                    World.hasTransform,
+                    World.hasAnimatedSprite,
+                    World.hasCollisionBox,
+                );
+                const gravity_system = system.MakeGravitySystem(
+                    World,
+                    World.hasVelocity,
+                );
+                const animation_system = system.MakeAnimationSystem(
+                    World,
+                    World.hasAnimatedSprite,
+                );
 
                 player_controls_system.run(&world, keyboard, scene);
-                system.runGravitySystem(delta, world);
-                try system.runCollisionSystem(delta, &scene, world);
-                system.runEntityCollisionSystem(delta, scene, world);
+                gravity_system.run(delta, &world);
+                try collision_system.run(delta, &scene, &world);
+                entity_collision_system.run(delta, scene, &world);
                 system.runTransformSystem(delta, world);
                 movement_system.run(delta, &world);
-                system.runAnimationSystem(delta, world);
+                animation_system.run(delta, &world);
                 system.runWanderSystem(delta, scene, world);
                 system.runCheckRespawnSysten(world);
                 system.runCameraFollowSystem(&camera, scene, world);
