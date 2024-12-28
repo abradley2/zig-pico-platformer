@@ -1,5 +1,6 @@
 const std = @import("std");
 const rl = @import("raylib");
+const Logger = @import("Logger.zig");
 
 const TileCustomProperty: type = struct {
     id: u32,
@@ -138,8 +139,8 @@ pub const TileSetID = enum(u8) {
     }
     pub fn fromString(s: []const u8) !TileSetID {
         if (getPathComparator(
-            3,
-            [_][]const u8{ "assets", "image", "tile_map.json" },
+            4,
+            [_][]const u8{ "../", "assets", "image", "tile_map.json" },
         ).compare(s)) {
             return TileSetID.TileMap;
         }
@@ -300,6 +301,7 @@ pub const TileMap = struct {
     }
 
     pub fn init(
+        l: *const Logger,
         allocator: std.mem.Allocator,
         texture_map: *TextureMap,
         file_path_segments: [][]const u8,
@@ -315,6 +317,7 @@ pub const TileMap = struct {
         const file_directory_path = try std.fs.path.join(allocator, file_directory_segments);
         defer allocator.free(file_directory_path);
 
+        l.write("Reading map file: {s}", .{file_path});
         const file_data = try readFile(allocator, file_path);
 
         const tile_map_json = try std.json.parseFromSliceLeaky(
@@ -330,21 +333,32 @@ pub const TileMap = struct {
         defer allocator.free(tile_sets);
 
         for (0.., tile_map_json.tilesets) |idx, tile_set_ref| {
-            var path_segments = std.ArrayList([]const u8).init(allocator);
-            defer path_segments.deinit();
+            // var path_segments = std.ArrayList([]const u8).init(allocator);
+            // defer path_segments.deinit();
 
-            var path_segments_iterator = std.mem.splitAny(u8, tile_set_ref.source, "/\\");
-            while (path_segments_iterator.next()) |path_segment| {
-                if (std.mem.eql(u8, path_segment, "..")) continue;
-                try path_segments.append(path_segment);
-            }
+            // var path_segments_iterator = std.mem.splitAny(u8, tile_set_ref.source, "/\\");
+            // while (path_segments_iterator.next()) |path_segment| {
+            //     // if (std.mem.eql(u8, path_segment, "..")) continue;
+            //     try path_segments.append(path_segment);
+            // }
 
-            const tile_set_path = try std.fs.path.join(allocator, path_segments.items);
-            defer allocator.free(tile_set_path);
+            // const tile_set_path = try std.fs.path.join(allocator, path_segments.items);
+            // defer allocator.free(tile_set_path);
 
-            const tile_set_id = try TileSetID.fromString(tile_set_path);
+            const tile_set_id = try TileSetID.fromString(tile_set_ref.source);
 
-            const tile_set_file = try readFile(allocator, tile_set_path);
+            const tile_set_abs_path_segments = [_][]const u8{
+                file_directory_path,
+                tile_set_ref.source,
+            };
+            const tile_set_abs_path = try std.fs.path.join(
+                allocator,
+                &tile_set_abs_path_segments,
+            );
+            defer allocator.free(tile_set_abs_path);
+            l.write("file directory path: {s}", .{file_directory_path});
+            l.write("Reading tile set file: {s}", .{tile_set_abs_path});
+            const tile_set_file = try readFile(allocator, tile_set_abs_path);
 
             var parsed_tile_set = try std.json.parseFromSliceLeaky(
                 TileSetData,
@@ -355,11 +369,12 @@ pub const TileMap = struct {
                 },
             );
 
-            const tile_set_dir_path = std.fs.path.dirname(tile_set_path) orelse "";
+            const tile_set_dir_path = std.fs.path.dirname(tile_set_ref.source) orelse "";
 
-            var image_path_segments: [2][]const u8 = undefined;
-            image_path_segments[0] = tile_set_dir_path;
-            image_path_segments[1] = parsed_tile_set.image;
+            var image_path_segments: [3][]const u8 = undefined;
+            image_path_segments[0] = file_directory_path;
+            image_path_segments[1] = tile_set_dir_path;
+            image_path_segments[2] = parsed_tile_set.image;
 
             const image_path = try std.fs.path.joinZ(allocator, &image_path_segments);
             defer allocator.free(image_path);
@@ -368,6 +383,8 @@ pub const TileMap = struct {
 
             if (existing_texture_ptr == null) {
                 const texture_ptr = try allocator.create(rl.Texture2D);
+
+                l.write("Loading texture: {s}", .{image_path});
                 texture_ptr.* = rl.loadTexture(image_path);
                 try texture_map.put(tile_set_id, texture_ptr);
             }

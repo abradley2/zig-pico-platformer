@@ -7,8 +7,12 @@ const system = @import("system.zig");
 const tiled = @import("tiled.zig");
 const Scene = @import("Scene.zig");
 const Keyboard = @import("Keyboard.zig");
+const Logger = @import("Logger.zig");
 
 pub fn main() anyerror!void {
+    const logger = try Logger.create();
+    defer logger.destroy();
+
     var game_allocator = std.heap.GeneralPurposeAllocator(.{}){};
 
     var world = try World.init(game_allocator.allocator());
@@ -29,11 +33,18 @@ pub fn main() anyerror!void {
 
     var texture_map: tiled.TextureMap = tiled.TextureMap.init(game_allocator.allocator());
 
-    var level_one_path = [2][]const u8{
+    var exe_path_buff: [std.fs.MAX_PATH_BYTES]u8 = undefined;
+    const exe_path = try std.fs.selfExeDirPath(&exe_path_buff);
+
+    var level_one_path = [_][]const u8{
+        exe_path,
+        "../",
+        "Resources",
         "levels",
         "level_01.json",
     };
     const tile_map = try tiled.TileMap.init(
+        &logger,
         game_allocator.allocator(),
         &texture_map,
         &level_one_path,
