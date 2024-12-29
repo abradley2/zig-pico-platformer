@@ -18,8 +18,7 @@ pub fn main() anyerror!void {
 
     var world = try World.init(game_allocator.allocator());
 
-    const menu_world = try MenuWorld.init(game_allocator.allocator());
-    _ = menu_world;
+    var menu_world = try MenuWorld.init(game_allocator.allocator());
 
     var screenWidth: f32 = 1800;
     var screenHeight: f32 = 900;
@@ -81,6 +80,8 @@ pub fn main() anyerror!void {
 
     rl.setWindowSize(rl.getScreenWidth(), rl.getScreenHeight());
 
+    _ = try menu_world.loadStartMenuScene();
+
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
         frame_count = frame_count + 1;
@@ -98,9 +99,9 @@ pub fn main() anyerror!void {
         camera.zoom = zoom;
 
         switch (scene.game_mode) {
-            .Game => {},
+            .StartMenu => {},
             .PauseMenu => {},
-            .StartMenu => {
+            .Game => {
                 const movement_system = system.MakeMovementSystem(
                     World,
                     World.hasVelocity,
@@ -178,7 +179,41 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(rl.Color.black);
 
-        rl.drawText("Hello World", 10, 10, 14, rl.Color.white);
+        for (0.., menu_world.position_components, menu_world.texture_render_components, menu_world.display_text_components) |
+            entity_id,
+            has_position,
+            has_texture_render,
+            has_display_text,
+        | {
+            _ = entity_id;
+            if (scene.game_mode == .Game) {
+                break;
+            }
+            const position = has_position orelse continue;
+            if (has_texture_render) |texture_render| {
+                const texture = texture_render.texture;
+                rl.drawTextureRec(
+                    texture.*,
+                    rl.Rectangle{
+                        .x = 0,
+                        .y = 0,
+                        .width = texture_render.src_width,
+                        .height = texture_render.src_height,
+                    },
+                    rl.Vector2{ .x = position.x, .y = position.y },
+                    rl.Color.white,
+                );
+            }
+            if (has_display_text) |display_text| {
+                rl.drawText(
+                    @ptrCast(display_text.text),
+                    @as(i32, @intFromFloat(position.x)),
+                    @as(i32, @intFromFloat(position.y)),
+                    display_text.font_size,
+                    display_text.color,
+                );
+            }
+        }
 
         rl.beginMode2D(camera);
         defer rl.endMode2D();
@@ -187,6 +222,9 @@ pub fn main() anyerror!void {
         const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
 
         for (tile_map.layers) |layer| {
+            if (scene.game_mode != .Game) {
+                break;
+            }
             if (layer.layer_type != tiled.LayerType.Display) {
                 continue;
             }
@@ -246,6 +284,9 @@ pub fn main() anyerror!void {
             has_tint,
             has_text_follow,
         | {
+            if (scene.game_mode != .Game) {
+                break;
+            }
             const position = has_position orelse continue;
             const collision_box = has_collision_box orelse continue;
             const animated_sprite = has_animated_sprite orelse continue;

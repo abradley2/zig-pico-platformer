@@ -36,18 +36,18 @@ pub fn MakeFreeComponentFunc(comptime World: type) type {
                             continue;
                         }
 
-                        const ptr_type = switch (@typeInfo(field.type)) {
-                            .Pointer => |v| v.size,
+                        const ptr_type, const ptr_child = switch (@typeInfo(field.type)) {
+                            .Pointer => |v| .{ v.size, v.child },
                             else => @compileError("Expected that the component field would be a pointer"),
                         };
 
-                        const slice_type = switch (ptr_type) {
-                            .Slice => ptr_type.child,
+                        _ = switch (ptr_type) {
+                            .Slice => ptr_type,
                             else => @compileError("Expected that the component field pointer is a slice"),
                         };
 
-                        _ = switch (@typeInfo(slice_type)) {
-                            .Optional => slice_type.child,
+                        _ = switch (@typeInfo(ptr_child)) {
+                            .Optional => ptr_type,
                             else => @compileError("Expected that the child type of the slice is an optional"),
                         };
 
@@ -68,7 +68,7 @@ pub const Tint = rl.Color;
 
 pub const DisplayText: type = struct {
     text: []const u8,
-    font_size: f32,
+    font_size: i32,
     color: rl.Color,
 };
 
