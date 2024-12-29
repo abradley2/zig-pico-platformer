@@ -79,13 +79,18 @@ pub fn main() anyerror!void {
 
     var frame_count: u64 = 0;
 
+    rl.setWindowSize(rl.getScreenWidth(), rl.getScreenHeight());
+
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
         frame_count = frame_count + 1;
         keyboard = keyboard.updateKeyboard();
 
-        screenWidth = @floatFromInt(rl.getScreenWidth());
-        screenHeight = @floatFromInt(rl.getScreenHeight());
+        if (rl.isWindowResized()) {
+            screenWidth = @floatFromInt(rl.getScreenWidth());
+            screenHeight = @floatFromInt(rl.getScreenHeight());
+            rl.setWindowSize(rl.getScreenWidth(), rl.getScreenHeight());
+        }
 
         const delta = @max(0.5, @min(rl.getFrameTime() / 0.01667, 2));
         const zoom: f32 = screenWidth / base_game_width;
@@ -171,11 +176,9 @@ pub fn main() anyerror!void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        if (frame_count > 10) {
-            rl.drawText("Hello World", 0, 0, 14, rl.Color.white);
-        }
-
         rl.clearBackground(rl.Color.black);
+
+        rl.drawText("Hello World", 10, 10, 14, rl.Color.white);
 
         rl.beginMode2D(camera);
         defer rl.endMode2D();
