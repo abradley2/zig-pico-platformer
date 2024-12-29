@@ -1,6 +1,64 @@
+const std = @import("std");
 const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
+
+pub const max_entity_count: usize = 512;
+
+pub fn ComponentSet(
+    comptime T: anytype,
+) type {
+    return struct {
+        const Self = @This();
+        pub fn initToNull(slice: []?T) void {
+            for (0..slice.len) |idx| {
+                slice[idx] = null;
+            }
+        }
+        pub fn init(alloc: std.mem.Allocator) ![]?T {
+            const slice = try alloc.alloc(?T, max_entity_count);
+            Self.initToNull(slice);
+            return slice;
+        }
+    };
+}
+
+pub fn MakeFreeComponentFunc(comptime World: type) type {
+    switch (@typeInfo(World)) {
+        .Struct => |s| {
+            return struct {
+                pub fn freeEntity(w: World, entity_id: usize) void {
+                    inline for (s.fields) |field| {
+                        const is_component = comptime std.mem.endsWith(u8, field.name, "_components");
+
+                        if (is_component == false) {
+                            // TODO: panic here on compile
+                            continue;
+                        }
+
+                        const ptr_type = switch (@typeInfo(field.type)) {
+                            .Pointer => |v| v.size,
+                            else => @compileError("Expected that the component field would be a pointer"),
+                        };
+
+                        const slice_type = switch (ptr_type) {
+                            .Slice => ptr_type.child,
+                            else => @compileError("Expected that the component field pointer is a slice"),
+                        };
+
+                        _ = switch (@typeInfo(slice_type)) {
+                            .Optional => slice_type.child,
+                            else => @compileError("Expected that the child type of the slice is an optional"),
+                        };
+
+                        @field(w, field.name)[entity_id] = null;
+                    }
+                }
+            };
+        },
+        else => @compileError("Expected a struct"),
+    }
+}
 
 pub fn HasComponent(comptime T: type, comptime C: type) type {
     return fn (t: *T) []?C;
@@ -85,18 +143,15 @@ pub const Position: type = struct {
     y: f32,
 };
 
-pub fn HasPosition(comptime T: type) type {
-    return fn (t: *T) []?Position;
-}
-
 pub const Velocity: type = struct {
     dx: f32,
     dy: f32,
 };
 
-pub fn HasVelocity(comptime T: type) type {
-    return fn (t: *T) []?Velocity;
-}
+pub const MenuCoords: type = struct {
+    x: f32,
+    y: f32,
+};
 
 pub const CollisionBox: type = struct {
     x_offset: f32,

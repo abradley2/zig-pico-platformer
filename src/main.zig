@@ -171,11 +171,6 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(rl.Color.black);
 
-        rl.drawFPS(
-            @as(i32, @intFromFloat(camera.target.x)),
-            @as(i32, @intFromFloat(camera.target.y)),
-        );
-
         const tile_height: f32 = @as(f32, @floatFromInt(tile_map.tile_height));
         const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
 

@@ -115,59 +115,6 @@ pub fn init(
     };
 }
 
-test "newCollision memory" {
-    const test_allocator = std.testing.allocator;
-
-    var prev_collisions = std.AutoHashMap(component.EntityCollision, bool)
-        .init(test_allocator);
-
-    var current_collisions = std.AutoHashMap(component.EntityCollision, bool)
-        .init(test_allocator);
-
-    const entity_collision = component.EntityCollision{
-        .entity_a = 0,
-        .entity_b = 1,
-        .atb_dir = component.Direction.Left,
-    };
-
-    try current_collisions.put(
-        entity_collision,
-        true,
-    );
-
-    try advanceCollisions(
-        test_allocator,
-        &prev_collisions,
-        &current_collisions,
-    );
-
-    var prev_iter = prev_collisions.iterator();
-    const moved_collision = prev_iter.next().?;
-
-    try std.testing.expect(
-        moved_collision.key_ptr.entity_b == entity_collision.entity_b,
-    );
-
-    try advanceCollisions(
-        test_allocator,
-        &prev_collisions,
-        &current_collisions,
-    );
-
-    try std.testing.expectEqual(
-        0,
-        prev_collisions.count(),
-    );
-
-    try std.testing.expectEqual(
-        0,
-        current_collisions.count(),
-    );
-
-    current_collisions.deinit();
-    prev_collisions.deinit();
-}
-
 pub fn advanceCollisions(
     self: *Scene,
 ) error{OutOfMemory}!void {

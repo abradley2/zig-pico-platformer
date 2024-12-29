@@ -1,8 +1,6 @@
 const std = @import("std");
 const component = @import("./component.zig");
 
-const max_entity_count: usize = 512;
-
 const World = @This();
 
 // TODO: lets make it so world has no non-component fields, let it all be in Scene
@@ -26,6 +24,14 @@ bouncy_components: []?component.Bouncy,
 transform_components: []?component.Transform,
 tint_components: []?component.Tint,
 text_follow_components: []?component.TextFollow,
+
+pub fn hasActiveIds(self: *World) std.AutoHashMap(usize, bool) {
+    return self.active_ids;
+}
+
+pub fn hasInactiveIds(self: *World) std.AutoHashMap(usize, bool) {
+    return self.inactive_ids;
+}
 
 pub fn hasIsToggleFor(self: *World) []?component.IsToggleFor {
     return self.is_toggle_for_components;
@@ -112,7 +118,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const active_ids = std.AutoHashMap(usize, bool).init(allocator);
     var inactive_ids = std.AutoHashMap(usize, bool).init(allocator);
 
-    for (0..max_entity_count) |entity_id| {
+    for (0..component.max_entity_count) |entity_id| {
         _ = try inactive_ids.put(entity_id, true);
     }
 
@@ -149,7 +155,7 @@ pub fn ComponentSet(
             }
         }
         pub fn init(alloc: std.mem.Allocator) ![]?T {
-            const slice = try alloc.alloc(?T, max_entity_count);
+            const slice = try alloc.alloc(?T, component.max_entity_count);
             Self.initToNull(slice);
             return slice;
         }
@@ -194,7 +200,7 @@ pub fn makeFreeComponentFunc() type {
 }
 
 pub fn freeEntity(self: *World, entity_id: usize) void {
-    makeFreeComponentFunc().freeEntity(self, entity_id);
+    component.MakeFreeComponentFunc(*World).freeEntity(self, entity_id);
     self.active_ids.remove(entity_id);
     self.inactive_ids.put(entity_id, true);
 }
