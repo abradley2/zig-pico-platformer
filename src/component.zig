@@ -66,6 +66,12 @@ pub fn HasComponent(comptime T: type, comptime C: type) type {
 
 pub const Tint = rl.Color;
 
+pub const DisplayText: type = struct {
+    text: []const u8,
+    font_size: f32,
+    color: rl.Color,
+};
+
 pub const TextFollow: type = struct {
     text: []const u8,
     current_char: usize,

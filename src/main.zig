@@ -1,6 +1,7 @@
 const rl = @import("raylib");
 const std = @import("std");
 const World = @import("World.zig");
+const MenuWorld = @import("MenuWorld.zig");
 const component = @import("component.zig");
 const entity = @import("entity.zig");
 const system = @import("system.zig");
@@ -16,6 +17,9 @@ pub fn main() anyerror!void {
     var game_allocator = std.heap.GeneralPurposeAllocator(.{}){};
 
     var world = try World.init(game_allocator.allocator());
+
+    const menu_world = try MenuWorld.init(game_allocator.allocator());
+    _ = menu_world;
 
     var screenWidth: f32 = 1800;
     var screenHeight: f32 = 900;
@@ -73,14 +77,15 @@ pub fn main() anyerror!void {
     const base_game_width: f32 = 600;
     var keyboard = Keyboard{};
 
+    var frame_count: u64 = 0;
+
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
+        frame_count = frame_count + 1;
         keyboard = keyboard.updateKeyboard();
 
-        if (rl.isWindowResized()) {
-            screenWidth = @floatFromInt(rl.getScreenWidth());
-            screenHeight = @floatFromInt(rl.getScreenHeight());
-        }
+        screenWidth = @floatFromInt(rl.getScreenWidth());
+        screenHeight = @floatFromInt(rl.getScreenHeight());
 
         const delta = @max(0.5, @min(rl.getFrameTime() / 0.01667, 2));
         const zoom: f32 = screenWidth / base_game_width;
@@ -166,10 +171,14 @@ pub fn main() anyerror!void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        rl.beginMode2D(camera);
-        defer rl.endMode2D();
+        if (frame_count > 10) {
+            rl.drawText("Hello World", 0, 0, 14, rl.Color.white);
+        }
 
         rl.clearBackground(rl.Color.black);
+
+        rl.beginMode2D(camera);
+        defer rl.endMode2D();
 
         const tile_height: f32 = @as(f32, @floatFromInt(tile_map.tile_height));
         const tile_width: f32 = @as(f32, @floatFromInt(tile_map.tile_width));
