@@ -30,20 +30,16 @@ tint_components: []?component.Tint,
 text_follow_components: []?component.TextFollow,
 trigger_volume_components: []?component.TriggerVolume,
 
+pub fn getGlobalId(self: *World, entity_id: usize) u16 {
+    return self.global_ids[entity_id];
+}
+
 pub fn hasTriggerVolume(self: *World) []?component.TriggerVolume {
     return self.trigger_volume_components;
 }
 
-pub fn hasActiveIds(self: *World) std.AutoHashMap(usize, bool) {
-    return self.active_ids;
-}
-
-pub fn hasInactiveIds(self: *World) std.AutoHashMap(usize, bool) {
-    return self.inactive_ids;
-}
-
-pub fn getGlobalId(self: *World, entity_id: usize) u16 {
-    return self.global_ids[entity_id];
+pub fn hasIsGoal(self: *World) []?component.IsGoal {
+    return self.is_goal_components;
 }
 
 pub fn hasIsToggleFor(self: *World) []?component.IsToggleFor {

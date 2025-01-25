@@ -68,6 +68,7 @@ pub const IsGoal: type = struct {};
 
 pub const TriggerVolume: type = struct {
     is_triggered: bool = false,
+    just_triggered: bool = false,
 };
 
 pub const Tint = rl.Color;

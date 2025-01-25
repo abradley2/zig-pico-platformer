@@ -61,10 +61,9 @@ pub fn main() anyerror!void {
         &world,
     );
 
-    defer rl.closeWindow(); // Close window and OpenGL context
+    defer rl.closeWindow();
 
-    rl.setTargetFPS(61); // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    rl.setTargetFPS(61);
 
     var camera = rl.Camera2D{
         .offset = rl.Vector2{ .x = 0, .y = 0 },
@@ -82,8 +81,7 @@ pub fn main() anyerror!void {
 
     _ = try menu_world.loadStartMenuScene();
 
-    // Main game loop
-    while (!rl.windowShouldClose()) { // Detect window close button or ESC key
+    while (!rl.windowShouldClose()) {
         frame_count = frame_count + 1;
         keyboard = keyboard.updateKeyboard();
 
@@ -102,17 +100,17 @@ pub fn main() anyerror!void {
             .StartMenu => {},
             .PauseMenu => {},
             .Game => {
-                const movement_system = system.MakeMovementSystem(
+                const movement_system = comptime system.MakeMovementSystem(
                     World,
                     World.hasVelocity,
                     World.hasPosition,
                 );
-                const player_controls_system = system.MakePlayerControlsSystem(
+                const player_controls_system = comptime system.MakePlayerControlsSystem(
                     World,
                     World.hasVelocity,
                     World.hasCollisionBox,
                 );
-                const collision_system = system.MakeCollisionSystem(
+                const collision_system = comptime system.MakeCollisionSystem(
                     World,
                     World.hasPosition,
                     World.hasCollisionBox,
@@ -120,7 +118,7 @@ pub fn main() anyerror!void {
                     World.hasDirection,
                     World.hasTriggerVolume,
                 );
-                const entity_collision_system = system.MakeEntityCollisionSystem(
+                const entity_collision_system = comptime system.MakeEntityCollisionSystem(
                     World,
                     World.hasIsToggleFor,
                     World.hasBouncy,
@@ -131,46 +129,52 @@ pub fn main() anyerror!void {
                     World.hasCollisionBox,
                     World.hasTriggerVolume,
                 );
-                const gravity_system = system.MakeGravitySystem(
+                const gravity_system = comptime system.MakeGravitySystem(
                     World,
                     World.hasVelocity,
                 );
-                const animation_system = system.MakeAnimationSystem(
+                const animation_system = comptime system.MakeAnimationSystem(
                     World,
                     World.hasAnimatedSprite,
                 );
-                const transform_system = system.MakeTransformSystem(
+                const transform_system = comptime system.MakeTransformSystem(
                     World,
                     World.hasTransform,
                 );
-                const wander_system = system.MakeWanderSystem(
+                const wander_system = comptime system.MakeWanderSystem(
                     World,
                     World.hasGroundedWander,
                     World.hasVelocity,
                     World.hasDirection,
                     World.hasCollisionBox,
                 );
-                const check_respawn_system = system.MakeCheckRespawnSystem(
+                const check_respawn_system = comptime system.MakeCheckRespawnSystem(
                     World,
                     World.hasPosition,
                     World.hasRespawnPoint,
                     World.hasVelocity,
                 );
-                const camera_follow_system = system.MakeCameraFollowSystem(
+                const camera_follow_system = comptime system.MakeCameraFollowSystem(
                     World,
                     World.hasPosition,
+                );
+                const goal_trigger_system = comptime system.MakeGoalTriggerSystem(
+                    World,
+                    World.hasIsGoal,
+                    World.hasTriggerVolume,
                 );
 
                 player_controls_system.run(&world, keyboard, scene);
                 gravity_system.run(delta, &world);
+                movement_system.run(delta, &world);
                 try collision_system.run(delta, &scene, &world);
                 entity_collision_system.run(delta, scene, &world);
                 transform_system.run(delta, &world);
-                movement_system.run(delta, &world);
                 animation_system.run(delta, &world);
                 wander_system.run(delta, scene, &world);
                 check_respawn_system.run(&world);
                 camera_follow_system.run(&camera, scene, &world);
+                goal_trigger_system.run(&world);
                 try scene.advanceCollisions();
             },
             .WinMenu => {},

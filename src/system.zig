@@ -34,6 +34,31 @@ fn doesCollideRects(
         entity_rect.y + entity_rect.height > collision_rect.y;
 }
 
+pub fn MakeGoalTriggerSystem(
+    comptime T: type,
+    comptime getIsGoalComponents: component.HasComponent(T, component.IsGoal),
+    comptime getTriggerVolumeComponents: component.HasComponent(T, component.TriggerVolume),
+) type {
+    return struct {
+        pub fn run(w: *T) void {
+            const is_goal_components = getIsGoalComponents(w);
+            const trigger_volume_components = getTriggerVolumeComponents(w);
+
+            for (
+                is_goal_components,
+                trigger_volume_components,
+            ) |has_goal, has_trigger_volume| {
+                if (has_goal == null) continue;
+                const trigger_volume = has_trigger_volume orelse continue;
+
+                if (trigger_volume.just_triggered) {
+                    std.debug.print("Goal Triggered\n", .{});
+                }
+            }
+        }
+    };
+}
+
 pub fn MakeCheckRespawnSystem(
     comptime T: type,
     comptime getPositionComponents: component.HasComponent(T, component.Position),
@@ -208,13 +233,18 @@ pub fn MakeEntityCollisionSystem(
             var transform_components = getTransformComponents(w);
             const animated_sprite_components = getAnimatedSpriteComponents(w);
             const collision_box_components = getCollisionBoxComponents(w);
-            const trigger_volume_components = getTriggerVolumeComponents(w);
+            var trigger_volume_components = getTriggerVolumeComponents(w);
 
-            // handle new collisions
             var new_collisions_iterator = scene.entity_collisions_hash.iterator();
+
+            for (0.., trigger_volume_components) |entity_id, has_trigger_volume| {
+                var trigger_volume = has_trigger_volume orelse continue;
+                trigger_volume.just_triggered = false;
+                trigger_volume_components[entity_id] = trigger_volume;
+            }
+
             while (new_collisions_iterator.next()) |new_collisions_entry| {
                 const entity_collision = new_collisions_entry.key_ptr.*;
-                // new collisions are not present in prev_collisions hash
                 if (scene.prev_entity_collisions_hash.get(new_collisions_entry.key_ptr.*) != null) {
                     continue;
                 }
@@ -224,21 +254,20 @@ pub fn MakeEntityCollisionSystem(
                 else
                     false;
 
-                check_goal_reached: {
+                check_trigger_volume: {
                     if (entity_a_is_player == false) {
-                        break :check_goal_reached;
+                        break :check_trigger_volume;
                     }
 
-                    var trigger_volume = trigger_volume_components[entity_collision.entity_b] orelse break :check_goal_reached;
+                    var trigger_volume = trigger_volume_components[entity_collision.entity_b] orelse break :check_trigger_volume;
 
                     if (trigger_volume.is_triggered) {
-                        break :check_goal_reached;
+                        break :check_trigger_volume;
                     }
 
                     trigger_volume.is_triggered = true;
+                    trigger_volume.just_triggered = true;
                     trigger_volume_components[entity_collision.entity_b] = trigger_volume;
-
-                    std.debug.print("YOU WIN!!!!\n", .{});
                 }
 
                 check_o_blocks: {
