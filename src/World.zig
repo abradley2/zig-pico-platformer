@@ -11,6 +11,7 @@ inactive_ids: std.AutoHashMap(usize, bool),
 current_global_id: u16 = 1,
 global_ids: [component.max_entity_count]u16 = std.mem.zeroes([component.max_entity_count]u16),
 
+is_goal_components: []?component.IsGoal,
 is_toggle_for_components: []?component.IsToggleFor,
 is_block_components: []?component.IsBlock,
 entity_collision_components: []?component.EntityCollision,
@@ -110,6 +111,7 @@ pub fn hasTextFollow(self: *World) []?component.TextFollow {
 }
 
 pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
+    const is_goal_components = try ComponentSet(component.IsGoal).init(allocator);
     const is_toggle_for_components = try ComponentSet(component.IsToggleFor).init(allocator);
     const is_block_components = try ComponentSet(component.IsBlock).init(allocator);
     const entity_collision_components = try ComponentSet(component.EntityCollision).init(allocator);
@@ -138,6 +140,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     return World{
         .active_ids = active_ids,
         .inactive_ids = inactive_ids,
+        .is_goal_components = is_goal_components,
         .is_block_components = is_block_components,
         .is_toggle_for_components = is_toggle_for_components,
         .entity_collision_components = entity_collision_components,
@@ -176,6 +179,7 @@ pub fn ComponentSet(
     };
 }
 
+// TODO: refactor this mess
 pub fn makeFreeComponentFunc() type {
     switch (@typeInfo(World)) {
         .Struct => |s| {
