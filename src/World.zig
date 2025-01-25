@@ -8,6 +8,9 @@ const World = @This();
 active_ids: std.AutoHashMap(usize, bool),
 inactive_ids: std.AutoHashMap(usize, bool),
 
+current_global_id: u16 = 1,
+global_ids: [component.max_entity_count]u16 = std.mem.zeroes([component.max_entity_count]u16),
+
 is_toggle_for_components: []?component.IsToggleFor,
 is_block_components: []?component.IsBlock,
 entity_collision_components: []?component.EntityCollision,
@@ -36,6 +39,10 @@ pub fn hasActiveIds(self: *World) std.AutoHashMap(usize, bool) {
 
 pub fn hasInactiveIds(self: *World) std.AutoHashMap(usize, bool) {
     return self.inactive_ids;
+}
+
+pub fn getGlobalId(self: *World, entity_id: usize) u16 {
+    return self.global_ids[entity_id];
 }
 
 pub fn hasIsToggleFor(self: *World) []?component.IsToggleFor {
@@ -124,7 +131,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const active_ids = std.AutoHashMap(usize, bool).init(allocator);
     var inactive_ids = std.AutoHashMap(usize, bool).init(allocator);
 
-    for (0..component.max_entity_count) |entity_id| {
+    for (1..component.max_entity_count) |entity_id| {
         _ = try inactive_ids.put(entity_id, true);
     }
 
@@ -210,14 +217,20 @@ pub fn freeEntity(self: *World, entity_id: usize) void {
     component.MakeFreeComponentFunc(*World).freeEntity(self, entity_id);
     self.active_ids.remove(entity_id);
     self.inactive_ids.put(entity_id, true);
+    self.global_ids[entity_id] = 0;
 }
 
 pub fn createEntity(self: *World) error{OutOfMemory}!usize {
+    if (self.current_global_id == std.math.maxInt(u16)) {
+        self.current_global_id = 0;
+    }
+    self.current_global_id += 1;
     var inactive_id_iter = self.inactive_ids.iterator();
     if (inactive_id_iter.next()) |entity_id_entry| {
         const entity_id = entity_id_entry.key_ptr.*;
         _ = self.inactive_ids.remove(entity_id);
         try self.active_ids.put(entity_id, true);
+        self.global_ids[entity_id] = self.current_global_id;
         return entity_id;
     }
     return error.OutOfMemory;

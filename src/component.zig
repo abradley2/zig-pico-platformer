@@ -64,6 +64,8 @@ pub fn HasComponent(comptime T: type, comptime C: type) type {
     return fn (t: *T) []?C;
 }
 
+pub const IsGoal: type = struct {};
+
 pub const TriggerVolume: type = struct {
     is_triggered: bool = false,
 };
