@@ -24,6 +24,11 @@ bouncy_components: []?component.Bouncy,
 transform_components: []?component.Transform,
 tint_components: []?component.Tint,
 text_follow_components: []?component.TextFollow,
+trigger_volume_components: []?component.TriggerVolume,
+
+pub fn hasTriggerVolume(self: *World) []?component.TriggerVolume {
+    return self.trigger_volume_components;
+}
 
 pub fn hasActiveIds(self: *World) std.AutoHashMap(usize, bool) {
     return self.active_ids;
@@ -114,6 +119,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
     const transform_components = try ComponentSet(component.Transform).init(allocator);
     const tint_components = try ComponentSet(component.Tint).init(allocator);
     const text_follow_components = try ComponentSet(component.TextFollow).init(allocator);
+    const trigger_volume_components = try ComponentSet(component.TriggerVolume).init(allocator);
 
     const active_ids = std.AutoHashMap(usize, bool).init(allocator);
     var inactive_ids = std.AutoHashMap(usize, bool).init(allocator);
@@ -141,6 +147,7 @@ pub fn init(allocator: std.mem.Allocator) error{OutOfMemory}!World {
         .transform_components = transform_components,
         .tint_components = tint_components,
         .text_follow_components = text_follow_components,
+        .trigger_volume_components = trigger_volume_components,
     };
 }
 

@@ -64,6 +64,10 @@ pub fn HasComponent(comptime T: type, comptime C: type) type {
     return fn (t: *T) []?C;
 }
 
+pub const TriggerVolume: type = struct {
+    is_triggered: bool = false,
+};
+
 pub const Tint = rl.Color;
 
 pub const DisplayText: type = struct {
@@ -152,6 +156,7 @@ pub const Position: type = struct {
 pub const Velocity: type = struct {
     dx: f32,
     dy: f32,
+    flies: bool = false,
 };
 
 pub const MenuCoords: type = struct {

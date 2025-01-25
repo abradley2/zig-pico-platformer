@@ -120,6 +120,15 @@
                 }]
         }, 
         {
+         "id":64,
+         "properties":[
+                {
+                 "name":"is_goal_spawn",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":68,
          "properties":[
                 {

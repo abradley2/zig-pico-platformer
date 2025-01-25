@@ -4,6 +4,56 @@ const rl = @import("raylib");
 const tiled = @import("tiled.zig");
 const Slice = @import("Slice.zig");
 
+const goal_animation = Slice.Make(rl.Rectangle, 3, 10).init(.{
+    rl.Rectangle{ .x = 0, .y = 32, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 16, .y = 32, .width = 16, .height = 16 },
+    rl.Rectangle{ .x = 32, .y = 32, .width = 16, .height = 16 },
+});
+
+pub fn makeGoalEntity(
+    start_x: f32,
+    start_y: f32,
+    texture_map: tiled.TextureMap,
+    world: *World,
+) error{ OutOfMemory, TextureNotFound }!usize {
+    const goal = try world.createEntity();
+    const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
+
+    world.position_components[goal] = component.Position{
+        .x = start_x,
+        .y = start_y,
+    };
+
+    world.trigger_volume_components[goal] = component.TriggerVolume{
+        .is_triggered = false,
+    };
+
+    world.collision_box_components[goal] = component.CollisionBox{
+        .x_offset = -32,
+        .y_offset = 0,
+        .width = 72,
+        .height = 16,
+        .did_touch_ground = false,
+    };
+
+    world.animated_sprite_components[goal] = component.AnimatedSprite{
+        .texture = texture,
+        .animation_rects = goal_animation,
+        .play_animation = null,
+        .delta_per_frame = 10,
+        .current_delta = 0,
+        .current_frame = 0,
+    };
+
+    world.velocity_components[goal] = component.Velocity{
+        .dx = 0,
+        .dy = 0,
+        .flies = true,
+    };
+
+    return goal;
+}
+
 const player_run_animation = Slice.Make(rl.Rectangle, 3, 10).init(.{
     rl.Rectangle{ .x = 16, .y = 192, .width = 16, .height = 16 },
     rl.Rectangle{ .x = 32, .y = 192, .width = 16, .height = 16 },
@@ -26,14 +76,6 @@ pub fn makePlayerEntity(
 ) error{ OutOfMemory, TextureNotFound }!usize {
     const player = try world.createEntity();
     const texture = try (texture_map.get(tiled.TileSetID.TileMap) orelse error.TextureNotFound);
-
-    world.text_follow_components[player] = component.TextFollow{
-        .text = "Player",
-        .current_char = 0,
-        .delta_per_char = 16,
-        .offset_x = 0,
-        .offset_y = -16,
-    };
 
     world.respawn_point_components[player] = component.RespawnPoint{
         .x = start_x,

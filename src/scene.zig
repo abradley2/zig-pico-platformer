@@ -14,7 +14,7 @@ pub const GameMode: type = enum {
     WinMenu,
 };
 
-game_mode: GameMode = GameMode.StartMenu,
+game_mode: GameMode = GameMode.Game,
 
 dialogue_text: ?usize = null,
 
@@ -98,6 +98,13 @@ pub fn init(
                     const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
                     const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
                     _ = try entity.makeOButtonEntity(start_x, start_y, texture_map, world);
+                }
+
+                const is_goal_spawn = try tiled.CustomProperty.getIsGoalSpawn(custom_properties);
+                if (is_goal_spawn) {
+                    const start_x = @as(f32, @floatFromInt(tile_map.tile_width)) * @as(f32, @floatFromInt(tile.tile_map_column));
+                    const start_y = @as(f32, @floatFromInt(tile_map.tile_height)) * @as(f32, @floatFromInt(tile.tile_map_row));
+                    _ = try entity.makeGoalEntity(start_x, start_y, texture_map, world);
                 }
             }
         }

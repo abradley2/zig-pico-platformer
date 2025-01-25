@@ -108,6 +108,18 @@ pub const CustomProperty = struct {
         return false;
     }
 
+    pub fn getIsGoalSpawn(properties: []CustomProperty) !bool {
+        for (properties) |property| {
+            if (std.mem.eql(u8, "is_goal_spawn", property.name)) {
+                switch (property.value) {
+                    std.json.Value.bool => |v| return v,
+                    else => return error.UnexpectedCustomPropertyType,
+                }
+            }
+        }
+        return false;
+    }
+
     pub fn getIsCollisionBox(properties: []CustomProperty) !bool {
         for (properties) |property| {
             if (std.mem.eql(u8, "is_collision_box", property.name)) {
@@ -333,18 +345,6 @@ pub const TileMap = struct {
         defer allocator.free(tile_sets);
 
         for (0.., tile_map_json.tilesets) |idx, tile_set_ref| {
-            // var path_segments = std.ArrayList([]const u8).init(allocator);
-            // defer path_segments.deinit();
-
-            // var path_segments_iterator = std.mem.splitAny(u8, tile_set_ref.source, "/\\");
-            // while (path_segments_iterator.next()) |path_segment| {
-            //     // if (std.mem.eql(u8, path_segment, "..")) continue;
-            //     try path_segments.append(path_segment);
-            // }
-
-            // const tile_set_path = try std.fs.path.join(allocator, path_segments.items);
-            // defer allocator.free(tile_set_path);
-
             const tile_set_id = try TileSetID.fromString(tile_set_ref.source);
 
             const tile_set_abs_path_segments = [_][]const u8{

@@ -118,6 +118,7 @@ pub fn main() anyerror!void {
                     World.hasCollisionBox,
                     World.hasVelocity,
                     World.hasDirection,
+                    World.hasTriggerVolume,
                 );
                 const entity_collision_system = system.MakeEntityCollisionSystem(
                     World,
@@ -128,6 +129,7 @@ pub fn main() anyerror!void {
                     World.hasTransform,
                     World.hasAnimatedSprite,
                     World.hasCollisionBox,
+                    World.hasTriggerVolume,
                 );
                 const gravity_system = system.MakeGravitySystem(
                     World,
@@ -272,14 +274,14 @@ pub fn main() anyerror!void {
         for (
             0..,
             world.position_components,
-            world.collision_box_components,
+            // world.collision_box_components,
             world.animated_sprite_components,
             world.tint_components,
             world.text_follow_components,
         ) |
             entity_id,
             has_position,
-            has_collision_box,
+            // has_collision_box,
             has_animated_sprite,
             has_tint,
             has_text_follow,
@@ -288,10 +290,10 @@ pub fn main() anyerror!void {
                 break;
             }
             const position = has_position orelse continue;
-            const collision_box = has_collision_box orelse continue;
+            // const collision_box = has_collision_box orelse continue;
             const animated_sprite = has_animated_sprite orelse continue;
             const tint = has_tint orelse rl.Color.white;
-            _ = collision_box;
+            // _ = collision_box;
             const animation_rects = animated_sprite.animation_rects.@"0";
             const animation_rect = animation_rects[animated_sprite.current_frame];
 

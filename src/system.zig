@@ -195,6 +195,7 @@ pub fn MakeEntityCollisionSystem(
     comptime getTransformComponents: component.HasComponent(T, component.Transform),
     comptime getAnimatedSpriteComponents: component.HasComponent(T, component.AnimatedSprite),
     comptime getCollisionBoxComponents: component.HasComponent(T, component.CollisionBox),
+    comptime getTriggerVolumeComponents: component.HasComponent(T, component.TriggerVolume),
 ) type {
     return struct {
         pub fn run(delta: f32, scene: Scene, w: *T) void {
@@ -207,6 +208,7 @@ pub fn MakeEntityCollisionSystem(
             var transform_components = getTransformComponents(w);
             const animated_sprite_components = getAnimatedSpriteComponents(w);
             const collision_box_components = getCollisionBoxComponents(w);
+            const trigger_volume_components = getTriggerVolumeComponents(w);
 
             // handle new collisions
             var new_collisions_iterator = scene.entity_collisions_hash.iterator();
@@ -221,6 +223,23 @@ pub fn MakeEntityCollisionSystem(
                     entity_collision.entity_a == player_entity_id
                 else
                     false;
+
+                check_goal_reached: {
+                    if (entity_a_is_player == false) {
+                        break :check_goal_reached;
+                    }
+
+                    var trigger_volume = trigger_volume_components[entity_collision.entity_b] orelse break :check_goal_reached;
+
+                    if (trigger_volume.is_triggered) {
+                        break :check_goal_reached;
+                    }
+
+                    trigger_volume.is_triggered = true;
+                    trigger_volume_components[entity_collision.entity_b] = trigger_volume;
+
+                    std.debug.print("YOU WIN!!!!\n", .{});
+                }
 
                 check_o_blocks: {
                     const toggle_for = is_toggle_for_components[entity_collision.entity_b] orelse break :check_o_blocks;
@@ -280,6 +299,7 @@ pub fn MakeCollisionSystem(
     comptime getCollisionBoxComponents: component.HasComponent(T, component.CollisionBox),
     comptime getVelocityComponents: component.HasComponent(T, component.Velocity),
     comptime getDirectionComponents: component.HasComponent(T, component.Direction),
+    comptime getTriggerVolumeComponents: component.HasComponent(T, component.TriggerVolume),
 ) type {
     return struct {
         pub fn run(delta: f32, scene: *Scene, w: *T) error{OutOfMemory}!void {
@@ -287,6 +307,7 @@ pub fn MakeCollisionSystem(
             var collision_box_components = getCollisionBoxComponents(w);
             const velocity_components = getVelocityComponents(w);
             const direction_components = getDirectionComponents(w);
+            const trigger_volume_components = getTriggerVolumeComponents(w);
 
             for (
                 0..,
@@ -348,15 +369,19 @@ pub fn MakeCollisionSystem(
                     position_components,
                     collision_box_components,
                     velocity_components,
+                    trigger_volume_components,
                 ) |
                     other_entity_id,
                     other_has_position,
                     other_has_collision_box,
                     other_has_velocity,
+                    other_has_trigger_volume,
                 | {
                     if (entityId == other_entity_id) {
                         continue;
                     }
+
+                    const is_trigger_volume = if (other_has_trigger_volume != null) true else false;
 
                     const other_position = other_has_position orelse continue;
                     const other_collision_box = other_has_collision_box orelse continue;
@@ -388,11 +413,11 @@ pub fn MakeCollisionSystem(
                     );
 
                     if (will_collide_with_floor and entity_y2 != other_collision_rect.y + other_collision_rect.height) {
-                        if (velocity.dy > 0) {
+                        if (velocity.dy > 0 and !is_trigger_volume) {
                             position.y = other_collision_rect.y - other_collision_rect.height - (other_collision_rect.y - other_position.y);
                             touched_ground = true;
                         }
-                        if (velocity.dy < 0) {
+                        if (velocity.dy < 0 and !is_trigger_volume) {
                             position.y = other_collision_rect.y + other_collision_rect.height - collision_box.y_offset;
                         }
                         try scene.addCollision(component.EntityCollision{
@@ -403,12 +428,14 @@ pub fn MakeCollisionSystem(
                             else
                                 component.Direction.Up,
                         });
-                        velocity.dy = 0;
+                        if (!is_trigger_volume) velocity.dy = 0;
                     }
 
                     if (will_collide_with_wall) {
-                        velocity.dx = 0;
-                        touched_wall = true;
+                        if (!is_trigger_volume) {
+                            velocity.dx = 0;
+                            touched_wall = true;
+                        }
                         const atb_dir = if (velocity.dx > 0)
                             component.Direction.Right
                         else
@@ -505,6 +532,10 @@ pub fn MakeGravitySystem(
 
             for (0.., velocity_components) |entityId, has_velocity| {
                 var velocity = has_velocity orelse continue;
+
+                if (velocity.flies) {
+                    continue;
+                }
 
                 velocity.dy += (0.15 * delta);
 
